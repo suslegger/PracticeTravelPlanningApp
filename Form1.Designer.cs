@@ -61,6 +61,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.exitbuttonthings = new System.Windows.Forms.Button();
             this.neededdgv = new System.Windows.Forms.DataGridView();
+            this.howto2 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -138,6 +139,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.howto2);
             this.tabPage1.Controls.Add(this.exitbuttonmap);
             this.tabPage1.Controls.Add(this.usesearchcb);
             this.tabPage1.Controls.Add(this.label3);
@@ -183,7 +185,7 @@
             // 
             this.usesearchcb.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.usesearchcb.AutoSize = true;
-            this.usesearchcb.Location = new System.Drawing.Point(347, 82);
+            this.usesearchcb.Location = new System.Drawing.Point(351, 76);
             this.usesearchcb.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.usesearchcb.Name = "usesearchcb";
             this.usesearchcb.Size = new System.Drawing.Size(327, 17);
@@ -509,6 +511,18 @@
             this.neededdgv.Size = new System.Drawing.Size(632, 288);
             this.neededdgv.TabIndex = 0;
             // 
+            // howto2
+            // 
+            this.howto2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.howto2.AutoSize = true;
+            this.howto2.Location = new System.Drawing.Point(348, 98);
+            this.howto2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.howto2.Name = "howto2";
+            this.howto2.Size = new System.Drawing.Size(340, 13);
+            this.howto2.TabIndex = 20;
+            this.howto2.Text = "Для подтверждения выбора нажмите на кнопку \"Выбрать пункт\"";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -565,6 +579,7 @@
         private System.Windows.Forms.TextBox amountthtextBox;
         private System.Windows.Forms.TextBox namethtextBox;
         private System.Windows.Forms.Button cleanallbutton;
+        private System.Windows.Forms.Label howto2;
     }
 }
 

@@ -40,7 +40,7 @@ namespace TravelPlanningAppSusloparov
 
         private void Karta_Load(object sender, EventArgs e)
         {
-            GMaps.Instance.Mode = AccessMode.ServerAndCache;  // кеширование карты          
+            GMaps.Instance.Mode = AccessMode.ServerAndCache;  // кеширование карты
             karta.DragButton = MouseButtons.Left; // лкм для перемещения карты
             karta.MapProvider = GMapProviders.OpenStreetMap; // провайдер карты
             double latitude = 55.742; // ширина 
@@ -60,6 +60,7 @@ namespace TravelPlanningAppSusloparov
         private void Addpointbutton_Click(object sender, EventArgs e)
         {
             bool isfailed = false; // счетчик ошибки для поиска
+            MessageBox.Show(Directory.GetCurrentDirectory());
             if (countpoints < 2) // проверка счетчика
             {
                     //_points.Add(new PointLatLng(karta.Position.Lat, karta.Position.Lng)); // добавление точки
@@ -78,11 +79,14 @@ namespace TravelPlanningAppSusloparov
                             {
                                 karta.Position = markerpos; // расположить карту в этом месте
                                 m1 = new GMarkerGoogle(new PointLatLng(karta.Position.Lat, karta.Position.Lng), GMarkerGoogleType.green_dot); // добавление маркера
-                            }
+                                if (karta.Zoom < 12) karta.Zoom = 12;
+                        }
                         }
                         else  {
                         markerpos = new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng);
                         m1 = new GMarkerGoogle(markerpos, GMarkerGoogleType.green_dot); // добавление маркера по выбору на карте
+                        karta.Position = markerpos;
+                        if (karta.Zoom < 12) karta.Zoom = 12;
                         }
 
                         if (isfailed == false)
@@ -111,12 +115,15 @@ namespace TravelPlanningAppSusloparov
                         {
                             karta.Position = markerpos;
                             m2 = new GMarkerGoogle(new PointLatLng(karta.Position.Lat, karta.Position.Lng), GMarkerGoogleType.red_dot);
+                            karta.ZoomAndCenterMarkers("markers");
                         }
                     }
                     else
                     {
                         markerpos = new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng);
                         m2 = new GMarkerGoogle(new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng), GMarkerGoogleType.red_dot);
+                        karta.Position = markerpos;
+                        karta.ZoomAndCenterMarkers("markers");
                     }
                         if (isfailed == false)
                         {
@@ -129,6 +136,7 @@ namespace TravelPlanningAppSusloparov
                             _currentMarker.IsVisible = false;
                             countpoints++;
                             statuslabel.Text = "Можно расчитывать расстояние";
+                            howto2.Visible = false;
                         }
                     }
             }
@@ -147,6 +155,7 @@ namespace TravelPlanningAppSusloparov
             distancelabel.Text = "Расстояние: не рассчитано";
             etalabel.Text = "Время в пути: не рассчитано";
             routes.Clear();
+            howto2.Visible = true;
         }
         private void Getrouteandtime_Click(object sender, EventArgs e)
         {
@@ -164,7 +173,6 @@ namespace TravelPlanningAppSusloparov
                     };
                     
                     routes.Routes.Add(r);
-                    
                     karta.ZoomAndCenterRoute(r);
                     statuslabel.Text = "Маршрут расчитан";
                     double distance = route.Distance;
@@ -475,7 +483,6 @@ namespace TravelPlanningAppSusloparov
 // баги: 1) мб нужно сделать кэш карты в папке
 // 2) мб добавить предупреждение о том что нужен интернет для поиска
 // 3) добавить комментарии и исправить дипсиковские комменты
-// 4) просмотреть видос индуса по исправлению багов карты (особенно поиска маршрута) и оффлайн картам
+// 4) просмотреть видос индуса по оффлайн картам
 // 5) пересмотреть функцию поиска местоположения (if else) (в самом конце)
-// 6) мб добавить увеличение карты при выборе точки
-// 7) мб сделать базу sqlite для вещей?
+// 6) мб сделать базу sqlite для вещей?
