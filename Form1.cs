@@ -178,7 +178,13 @@ namespace TravelPlanningAppSusloparov
                         {
                             double speed = Convert.ToDouble(speedtextBox.Text);
                             double time = distance / speed;
-                            etalabel.Text = "Примерное время в пути - " + time + " часов";
+                            time = Math.Round(time, 2);
+                            if (time < 1) {
+                                time *= 60;
+                                etalabel.Text = "Примерное время в пути равно " + time + " минут";
+
+                            }
+                            else etalabel.Text = "Примерное время в пути равно " + time + " часов";
                         }
                         catch (Exception)
                         {
@@ -211,7 +217,7 @@ namespace TravelPlanningAppSusloparov
             if (pedestriancheckBox.Checked == true)
             {
                 ispedestrian = true;
-                if (timecheckbox.Checked == true) speedtextBox.Text = "5.5";
+                if (timecheckbox.Checked == true) speedtextBox.Text = "5,5";
             }
             else { 
                 ispedestrian = false;
@@ -472,5 +478,4 @@ namespace TravelPlanningAppSusloparov
 // 4) просмотреть видос индуса по исправлению багов карты (особенно поиска маршрута) и оффлайн картам
 // 5) пересмотреть функцию поиска местоположения (if else) (в самом конце)
 // 6) мб добавить увеличение карты при выборе точки
-// 7) не работает drag в карте
-// 8) мб сделать базу sqlite для вещей?
+// 7) мб сделать базу sqlite для вещей?
