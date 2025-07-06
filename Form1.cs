@@ -37,10 +37,13 @@ namespace TravelPlanningAppSusloparov
             _pointnames = new List<String>(); // создание списка имен точек
             neededdgv.AllowUserToAddRows = false; // запретить добавлять поля встроенными инструментами datagridview
         }
-
+         
         private void Karta_Load(object sender, EventArgs e)
         {
-            GMaps.Instance.Mode = AccessMode.ServerAndCache;  // кеширование карты
+            GMaps.Instance.Mode = AccessMode.CacheOnly;  // кеширование карты
+            string CacheDirectory = Directory.GetCurrentDirectory() + @"\mapcache";
+            if (Directory.Exists(CacheDirectory) == false) Directory.CreateDirectory(CacheDirectory);
+            karta.CacheLocation = CacheDirectory;
             karta.DragButton = MouseButtons.Left; // лкм для перемещения карты
             karta.MapProvider = GMapProviders.OpenStreetMap; // провайдер карты
             double latitude = 55.742; // ширина 
@@ -60,10 +63,11 @@ namespace TravelPlanningAppSusloparov
         private void Addpointbutton_Click(object sender, EventArgs e)
         {
             bool isfailed = false; // счетчик ошибки для поиска
-            MessageBox.Show(Directory.GetCurrentDirectory());
             if (countpoints < 2) // проверка счетчика
             {
-                    //_points.Add(new PointLatLng(karta.Position.Lat, karta.Position.Lng)); // добавление точки
+                if (_currentMarker.IsVisible == false && usesearchcb.Checked == false) MessageBox.Show("Не выбрана точка!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                else
+                {
                     GMapMarker m1 = null, m2 = null; // инициализация точек
                     PointLatLng markerpos;
                     if (countpoints == 0) // если нет точек
@@ -71,7 +75,8 @@ namespace TravelPlanningAppSusloparov
                         if (usesearchcb.Checked == true) // если используется поиск (установлена галочка)
                         {
                             karta.GetPositionByKeywords(nametextbox.Text, out markerpos); // попытка поиска
-                            if (markerpos.ToString() == "{Lat=0, Lng=0}") { // если место не найдено, отобразить окно и включить счётчик ошибок
+                            if (markerpos.ToString() == "{Lat=0, Lng=0}")
+                            { // если место не найдено, отобразить окно и включить счётчик ошибок
                                 MessageBox.Show("Не удалось найти данное место", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 isfailed = true;
                             }
@@ -80,13 +85,14 @@ namespace TravelPlanningAppSusloparov
                                 karta.Position = markerpos; // расположить карту в этом месте
                                 m1 = new GMarkerGoogle(new PointLatLng(karta.Position.Lat, karta.Position.Lng), GMarkerGoogleType.green_dot); // добавление маркера
                                 if (karta.Zoom < 12) karta.Zoom = 12;
+                            }
                         }
-                        }
-                        else  {
-                        markerpos = new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng);
-                        m1 = new GMarkerGoogle(markerpos, GMarkerGoogleType.green_dot); // добавление маркера по выбору на карте
-                        karta.Position = markerpos;
-                        if (karta.Zoom < 12) karta.Zoom = 12;
+                        else
+                        {
+                            markerpos = new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng);
+                            m1 = new GMarkerGoogle(markerpos, GMarkerGoogleType.green_dot); // добавление маркера по выбору на карте
+                            karta.Position = markerpos;
+                            if (karta.Zoom < 12) karta.Zoom = 12;
                         }
 
                         if (isfailed == false)
@@ -103,28 +109,28 @@ namespace TravelPlanningAppSusloparov
                     }
                     else
                     {
-                    if (usesearchcb.Checked == true) // 
-                    {
-                        karta.GetPositionByKeywords(nametextbox.Text, out markerpos);
-                        if (markerpos.ToString() == "{Lat=0, Lng=0}")
+                        if (usesearchcb.Checked == true) // 
                         {
-                            MessageBox.Show("Не удалось найти данное место", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            isfailed = true;
+                            karta.GetPositionByKeywords(nametextbox.Text, out markerpos);
+                            if (markerpos.ToString() == "{Lat=0, Lng=0}")
+                            {
+                                MessageBox.Show("Не удалось найти данное место", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                isfailed = true;
+                            }
+                            else
+                            {
+                                karta.Position = markerpos;
+                                m2 = new GMarkerGoogle(new PointLatLng(karta.Position.Lat, karta.Position.Lng), GMarkerGoogleType.red_dot);
+                                karta.ZoomAndCenterMarkers("markers");
+                            }
                         }
                         else
                         {
+                            markerpos = new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng);
+                            m2 = new GMarkerGoogle(new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng), GMarkerGoogleType.red_dot);
                             karta.Position = markerpos;
-                            m2 = new GMarkerGoogle(new PointLatLng(karta.Position.Lat, karta.Position.Lng), GMarkerGoogleType.red_dot);
                             karta.ZoomAndCenterMarkers("markers");
                         }
-                    }
-                    else
-                    {
-                        markerpos = new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng);
-                        m2 = new GMarkerGoogle(new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng), GMarkerGoogleType.red_dot);
-                        karta.Position = markerpos;
-                        karta.ZoomAndCenterMarkers("markers");
-                    }
                         if (isfailed == false)
                         {
                             _points.Add(markerpos);
@@ -139,6 +145,7 @@ namespace TravelPlanningAppSusloparov
                             howto2.Visible = false;
                         }
                     }
+                }
             }
             else MessageBox.Show("Невозможно добавить более чем 2 точки!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
@@ -148,6 +155,7 @@ namespace TravelPlanningAppSusloparov
         {
             _points.Clear();
             _pointnames.Clear();
+            _currentMarker.IsVisible = false;
             statuslabel.Text = "Пункты не выбраны!";
             markeroverlay.Clear();
             karta.Refresh();
@@ -480,9 +488,7 @@ namespace TravelPlanningAppSusloparov
         }
     }
 }
-// баги: 1) мб нужно сделать кэш карты в папке
-// 2) мб добавить предупреждение о том что нужен интернет для поиска
-// 3) добавить комментарии и исправить дипсиковские комменты
-// 4) просмотреть видос индуса по оффлайн картам
-// 5) пересмотреть функцию поиска местоположения (if else) (в самом конце)
-// 6) мб сделать базу sqlite для вещей?
+// баги: 
+// 1) добавить комментарии и исправить дипсиковские комменты
+// 2) пересмотреть функцию поиска местоположения (if else) (в самом конце)
+// 3) мб сделать базу sqlite для вещей?
