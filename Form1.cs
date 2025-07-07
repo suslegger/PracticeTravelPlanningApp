@@ -48,7 +48,7 @@ namespace TravelPlanningAppSusloparov
          
         private void Karta_Load(object sender, EventArgs e)
         {
-            GMaps.Instance.Mode = AccessMode.ServerAndCache;  // режим кеширование карты
+            GMaps.Instance.Mode = AccessMode.ServerAndCache;  // режим кеширования карты
             string CacheDirectory = Path.Combine(Directory.GetCurrentDirectory(),"cache"); // папка кеширования карты
             if (!Directory.Exists(CacheDirectory)) Directory.CreateDirectory(CacheDirectory); // если нет папки - создать
             karta.CacheLocation = CacheDirectory; // назначение папки кеша
@@ -92,20 +92,20 @@ namespace TravelPlanningAppSusloparov
                                 MessageBox.Show("Не удалось найти данное место", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 isfailed = true;
                             }
-                            else
+                            else // если найдено
                             {
                                 karta.Position = markerpos; // расположить карту в этом месте
-                                m1 = new GMarkerGoogle(new PointLatLng(karta.Position.Lat, karta.Position.Lng), GMarkerGoogleType.green_dot); // добавление маркера
+                                m1 = new GMarkerGoogle(markerpos, GMarkerGoogleType.green_dot); // добавление маркера
                                 if (karta.Zoom < 12) karta.Zoom = 12; // увеличить карту на этой точке
                             }
                         }
-                        else
+                        else // если местоположение выбиралось по нажатию на карту
                         {
-                            markerpos = new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng);
-                            m1 = new GMarkerGoogle(markerpos, GMarkerGoogleType.green_dot); // добавление маркера по выбору на карте
+                            markerpos = new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng); // задание маркера по выбранным координатам
+                            m1 = new GMarkerGoogle(markerpos, GMarkerGoogleType.green_dot); // добавление маркера по выбору в переменную m1
                             karta.Position = markerpos; // расположить карту в этом месте
                             if (karta.Zoom < 12) karta.Zoom = 12; // увеличить карту на этой точке
-                }
+                        }
                         if (isfailed == false) // если нет ошибок
                         {
                             _points.Add(markerpos); // добавить точку в список
@@ -113,137 +113,135 @@ namespace TravelPlanningAppSusloparov
                             _markerOverlay.Markers.Add(m1); // добавление пиктограммы на карту
                             if (nametextbox.Text != String.Empty) _pointnames.Add(nametextbox.Text); // добавление названия
                             else _pointnames.Add("пункт А"); // если нет - использовать стандартное
-                            m1.ToolTipText = "Начало: " + _pointnames[0]; // подсказка пиктограммы
-                            m1.ToolTipMode = MarkerTooltipMode.Always; // добавление пиктограммы
+                            m1.ToolTipText = "Начало: " + _pointnames[0]; // подсказка маркера
+                            m1.ToolTipMode = MarkerTooltipMode.Always; // режим подсказки
                             statuslabel.Text = "Выбран только исходный пункт!"; // изменение текста статуса
                         }
                     }
             else // если есть одна точка
                     {
                         if (usesearchcb.Checked == true) // если используется поиск (установлена галочка)
-                {
-                            karta.GetPositionByKeywords(nametextbox.Text, out markerpos);
-                            if (markerpos.ToString() == "{Lat=0, Lng=0}")
+                        {
+                            karta.GetPositionByKeywords(nametextbox.Text, out markerpos); // поиск местоположения по словам
+                            if (markerpos.ToString() == "{Lat=0, Lng=0}") // если не удалось найти - показать окно ошибки и изменить счётчик ошибок
                             {
                                 MessageBox.Show("Не удалось найти данное место", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 isfailed = true;
                             }
-                            else
+                            else // если удалось - занести расположение в переменную, создать маркер и центровать карту по маркеру
                             {
                                 karta.Position = markerpos;
                                 m2 = new GMarkerGoogle(new PointLatLng(karta.Position.Lat, karta.Position.Lng), GMarkerGoogleType.red_dot);
                                 karta.ZoomAndCenterMarkers("markers");
                             }
                         }
-                        else
+                        else // если местоположение выбиралось по нажатию на карту
                         {
-                            markerpos = new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng);
-                            m2 = new GMarkerGoogle(new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng), GMarkerGoogleType.red_dot);
-                            karta.Position = markerpos;
-                            karta.ZoomAndCenterMarkers("markers");
+                            markerpos = new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng); // задание маркера по выбранным координатам
+                            m2 = new GMarkerGoogle(markerpos, GMarkerGoogleType.red_dot); // добавление маркера в переменную
+                            karta.ZoomAndCenterMarkers("markers"); // центрирование карты по маркеру
                         }
-                        if (isfailed == false)
+                        if (isfailed == false) // если счётчик ошибок не сработал
                         {
-                            _points.Add(markerpos);
-                            _markerOverlay.Markers.Add(m2);
-                            if (nametextbox.Text != String.Empty) _pointnames.Add(nametextbox.Text);
-                            else _pointnames.Add("пункт B");
-                            m2.ToolTipText = "Конец: " + _pointnames[1];
-                            m2.ToolTipMode = MarkerTooltipMode.Always;
-                            _currentMarker.IsVisible = false;
-                            _countPoints++;
-                            statuslabel.Text = "Можно расчитывать расстояние";
-                            howto2.Visible = false;
+                            _points.Add(markerpos); // добавить точку в список точек
+                            _markerOverlay.Markers.Add(m2); // добавление маркера на наложение
+                            if (nametextbox.Text != String.Empty) _pointnames.Add(nametextbox.Text); // добавление название макера
+                            else _pointnames.Add("пункт B"); // или использование стандартного
+                            m2.ToolTipText = "Конец: " + _pointnames[1]; // подсказка маркера
+                            m2.ToolTipMode = MarkerTooltipMode.Always; // режим подсказки маркера
+                            _currentMarker.IsVisible = false; // скрытие маркера выбора
+                            _countPoints++; // добавление счётчика
+                            statuslabel.Text = "Можно расчитывать расстояние"; // изменение статуса
+                            howto2.Visible = false; // скрытие подсказки по выбору маркера
                         }
                     }
                 }
-            
 
         private void Resetpointbutton_Click(object sender, EventArgs e)
         {
-            _points.Clear();
-            _pointnames.Clear();
-            _currentMarker.IsVisible = false;
-            statuslabel.Text = "Пункты не выбраны!";
-            _markerOverlay.Clear();
-            karta.Refresh();
-            _countPoints = 0;
-            distancelabel.Text = "Расстояние: не рассчитано";
-            etalabel.Text = "Время в пути: не рассчитано";
-            _routesOverlay.Clear();
-            howto2.Visible = true;
+            _points.Clear(); // очистить список точек
+            _pointnames.Clear(); // очистить список названий точек
+            _currentMarker.IsVisible = false; // убрать видимость маркера выбора
+            statuslabel.Text = "Пункты не выбраны!"; // изменить статус
+            _markerOverlay.Clear(); // очистить наложение маркеров
+            karta.Refresh(); // обновить карту
+            _countPoints = 0; // сбросить счётчик точек и сообщения
+            distancelabel.Text = "Расстояние: не рассчитано"; // текст расстояния
+            etalabel.Text = "Время в пути: не рассчитано"; // текст времени в пути
+            _routesOverlay.Clear(); // очистить наложение маршрутов
+            howto2.Visible = true; // показать подсказку, как выбрать пункт
         }
         public static TimeSpan CalculateTravelTime(double distance, double speed)
         {
-            if (speed <= 0)
-                throw new ArgumentException("Скорость должна быть больше нуля", nameof(speed));
+            if (speed <= 0) // если скорость <=0 - вывести ошибку
+                throw new ArgumentException("Скорость должна быть больше нуля!");
 
-            double hours = distance / speed;
-            return TimeSpan.FromHours(hours);
+            double hours = distance / speed; // время = расстояние / скорость
+            return TimeSpan.FromHours(hours); // возвращать по умолчанию часы
         }
         private void Getrouteandtime_Click(object sender, EventArgs e)
         {
-            if (_countPoints != 2)
+            if (_countPoints != 2) // если точек меньше 2 - вывести ошибку
             {
                 MessageBox.Show("Не добавлены все точки!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            statuslabel.Text = "Расчет маршрута...";
-            var route = OpenStreetMapProvider.Instance.GetRoute(
+            statuslabel.Text = "Расчет маршрута..."; // изменение статуса
+            var route = OpenStreetMapProvider.Instance.GetRoute( // поиск маршрута: 2 точки, преподчитать ли трассы, пешеходные маршруты, какое увеличение использовать
                 _points[0],
                 _points[1],
                 false,
                 _isPedestrian,
                 (int)karta.Zoom);
-            if (route == null)
+            if (route == null) // если маршрут не найден - вывести ошибку
             {
                 MessageBox.Show("Невозможно вычислить маршрут! Проверьте интернет-соединение", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); ;
                 return;
             }
-            var r = new GMapRoute(route.Points, "Marshrut")
+            var r = new GMapRoute(route.Points, "Marshrut") // создание маршрута и использование красного цвета для маршрута
             {
                 Stroke = new Pen(Color.Red, 5)
             };
-            _routesOverlay.Routes.Add(r);
-            karta.ZoomAndCenterRoute(r);
-            statuslabel.Text = "Маршрут расчитан";
-            double distance = route.Distance;
-            if (_pointnames[0] == "пункт А") _pointnames[0] = "пункта А";
+            _routesOverlay.Routes.Add(r); // добавление маршрута на наложение
+            karta.ZoomAndCenterRoute(r); // приближение и центрирование маршрута
+            statuslabel.Text = "Маршрут расчитан"; // изменение статуса
+            double distance = route.Distance; // обозначение расстояния
+            if (_pointnames[0] == "пункт А") _pointnames[0] = "пункта А"; // изменение падежа при стандартных названиях
             if (_pointnames[1] == "пункт B") _pointnames[1] = "пункта B";
-            distance = Math.Truncate(distance * 1000) / 1000;
-            double meters = Math.Truncate(distance);
-            meters = Math.Round(distance - meters, 3);
-            if (meters == 0)
+            distance = Math.Truncate(distance * 1000) / 1000; // максимум 3 числа после запятой
+            double meters = Math.Truncate(distance); // временно берём метры как целое число из расстояния в км
+            meters = Math.Round(distance - meters, 3); // расчет метров
+            if (meters == 0) // если метры = 0 - строка выглядит так
             {
                 distancelabel.Text = "Расстояние от " + _pointnames[0] + " до " + _pointnames[1] + " равно " + distance + " км.";
             }
-            else
+            else // если метры != 0 - строка выглядит такы
             {
                 distancelabel.Text = "Расстояние от " + _pointnames[0] + " до " + _pointnames[1] + " равно " + Math.Truncate(distance) + " км. " + meters*1000 + " м.";
             }
-            if (timecheckbox.Checked == true)
+            if (timecheckbox.Checked == true) // если установлена галочка расчета времени
             {
                 try
                 {
-                    double speed = Convert.ToDouble(speedtextBox.Text);
-                    TimeSpan traveltime = CalculateTravelTime(distance, speed);
-                    if (traveltime.TotalHours < 1)
+                    double speed = Convert.ToDouble(speedtextBox.Text); // берём скорость из поля
+                    TimeSpan traveltime = CalculateTravelTime(distance, speed); // вызов функции расчёта времени
+                    if (traveltime.TotalHours < 1) // если время меньше 1 часа - строка выглядит так
                     {
                         etalabel.Text = $"Примерное время в пути равно: {traveltime.Minutes} мин {traveltime.Seconds} сек";
                     }
-                    else if (traveltime.TotalHours < 24)
+                    else if (traveltime.TotalHours < 24) // если время меньше 24 часов
                     {
                         etalabel.Text = $"Примерное время в пути равно: {traveltime.Hours} ч {traveltime.Minutes} мин {traveltime.Seconds} сек";
                     }
-                    else
+                    else // если больше 24 часов
                     {
                         etalabel.Text = $"Примерное время в пути равно: {traveltime.Days} дн {traveltime.Hours} ч {traveltime.Minutes} мин";
                     }
 
                 }
-                catch (Exception)
+                catch (Exception ex) // если ошибка в функции
                 {
-                    MessageBox.Show("Было введено неправильное число!");
+                    MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); // вывести сообщение при ошибке
                 }
             }
         }
@@ -252,13 +250,13 @@ namespace TravelPlanningAppSusloparov
 
         private void Timecheckbox_CheckedChanged(object sender, EventArgs e)
         {
-            if (timecheckbox.Checked == true)
+            if (timecheckbox.Checked == true) // если поставлена галочка "рассчитать время"
             {
-                speedtextBox.Visible = true;
-                speedlabel.Visible = true;
-                getrouteandtime.Text = "Рассчитать расстояние и время";
+                speedtextBox.Visible = true; // показать поле для ввода скорости
+                speedlabel.Visible = true; // показать пометку для ввода скорости
+                getrouteandtime.Text = "Рассчитать расстояние и время"; // изменить текст кнопки
             }
-            else
+            else // если убрана - вернуть все назад
             {
                 speedtextBox.Visible = false;
                 speedlabel.Visible = false;
@@ -268,85 +266,85 @@ namespace TravelPlanningAppSusloparov
 
         private void PedestriancheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (pedestriancheckBox.Checked == true)
+            if (pedestriancheckBox.Checked == true) // если поставлена галочка "пеший маршрут"
             {
-                _isPedestrian = true;
-                if (timecheckbox.Checked == true) speedtextBox.Text = "5,5";
+                _isPedestrian = true; // изменить переменную пешехода (истина) и среднюю скорость
+                if (timecheckbox.Checked == true) speedtextBox.Text = "5,5"; 
             }
             else { 
-                _isPedestrian = false;
+                _isPedestrian = false; // изменить переменную пешехода (ложь = автомобиль) и среднюю скорость
                 if (timecheckbox.Checked == true) speedtextBox.Text = "30";
             }
             
         }
 
-        private void Karta_MouseDown(object sender, MouseEventArgs e)
+        private void Karta_MouseDown(object sender, MouseEventArgs e) // при нажатии кнопкой мыши на карту
         {
             
-            if (e.Button == MouseButtons.Right && usesearchcb.Checked == false)
+            if (e.Button == MouseButtons.Right && usesearchcb.Checked == false) // если нажата ПКМ и карта не в режиме поиска по словам
             {
-                if (_currentMarker.IsVisible == false) { _currentMarker.IsVisible = true; }
-                if (_currentMarker.IsVisible)
+                if (_currentMarker.IsVisible == false) { _currentMarker.IsVisible = true; } // если маркер не видим - сделать видимым
+                if (_currentMarker.IsVisible) // если маркер видим - вернуть координаты, куда нажата мышь 
                 {
                     _currentMarker.Position = karta.FromLocalToLatLng(e.X, e.Y);
                 }
             }
         }
 
-        private void Zoomplus_Click(object sender, EventArgs e)
+        private void Zoomplus_Click(object sender, EventArgs e) // при нажатии на кнопку увлеич. масштаба - увеличить масштаб
         {
             karta.Zoom++;
         }
 
-        private void Zoomminus_Click(object sender, EventArgs e)
+        private void Zoomminus_Click(object sender, EventArgs e) // при нажатии на кнопку уменьш. масшаба - уменьшить масштаб
         {
             karta.Zoom--;
         }
 
-        private void Karta_OnMapZoomChanged()
+        private void Karta_OnMapZoomChanged() // при изменении масштаба
         {
-            if (karta.Zoom != MinZoom && karta.Zoom != MaxZoom)
+            if (karta.Zoom != MinZoom && karta.Zoom != MaxZoom) // если не максимальный и не мин. масшаб - если кнопки выключены - включить
             {
-                if (zoomplus.Enabled == false) zoomplus.Enabled = true;
+                if (zoomplus.Enabled == false) zoomplus.Enabled = true; 
                 if (zoomminus.Enabled == false) zoomminus.Enabled = true;
             }
-            else if (karta.Zoom == MinZoom)
+            else if (karta.Zoom == MinZoom) // если масштаб слишком маленький - выключить кнопку уменьшения
             {
                 zoomminus.Enabled = false;
                 if (zoomplus.Enabled == false) zoomplus.Enabled = true;
             }
-            else
+            else // если масштаб слишком большой - выкл. кнопку увеличения
             {
-                zoomplus.Enabled = false;
+                zoomplus.Enabled = false; 
                 if (zoomminus.Enabled == false) zoomminus.Enabled = true;
             }   
         }
 
-        private void Usesearchcb_CheckedChanged(object sender, EventArgs e)
+        private void Usesearchcb_CheckedChanged(object sender, EventArgs e) // при изменении галочки поиска
         {
-            if (usesearchcb.Checked == true)
+            if (usesearchcb.Checked == true) // если поставлена галочка поиска, показывать один текст подсказки, если нет - другой
             {
                 howto.Text = "Введите названия исходного пункта для поиска";
                 helplabel1.Text = "Вращайте карту левой кнопкой мыши";
-                _selmarkOverlay.IsVisibile = false;
+                _selmarkOverlay.IsVisibile = false; // убрать видимость маркера выбора
             }
             else
             {
                 helplabel1.Text = "Вращайте карту левой кнп. мыши, указание пунктов - правой";
                 howto.Text = "Выберите пункт на карте и введите имя точки (необязательно)";
-                _selmarkOverlay.IsVisibile = true;
+                _selmarkOverlay.IsVisibile = true; // показать маркер выбора
             }
             
         }
 
         private void Exitbuttonmap_Click(object sender, EventArgs e)
         {
-            this.Close();
+            this.Close(); // выйти из программы
         }
         // список необходимых предметов
         private void Exitbuttonthings_Click(object sender, EventArgs e)
         {
-            this.Close();
+            this.Close(); // выйти из программы
         }
 
         private void Addbuttonth_Click(object sender, EventArgs e)
@@ -531,6 +529,6 @@ namespace TravelPlanningAppSusloparov
         }
     }
 }
-// баги: 
-// 1) добавить комментарии и исправить дипсиковские комменты
-// 2) сделать базу sqlite для вещей?
+// баги/задачи: 
+// 1) добавить комментарии к реализации списка вещей и исправить дипсиковские комменты к реализации
+// 2) сделать базу sqlite для вещей
