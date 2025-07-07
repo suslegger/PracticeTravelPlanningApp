@@ -24,12 +24,19 @@ namespace TravelPlanningAppSusloparov
     {
         public List<PointLatLng> _points; // лист с маркерами
         public List<String> _pointnames; // лист с названиями маркеров
-        public GMapOverlay selmarkoverlay = new GMapOverlay("selmark"); // оверлей с маркерами
-        public GMapOverlay markeroverlay = new GMapOverlay("markers"); // оверлей с маркерами
-        public GMapOverlay routes = new GMapOverlay("routes");
+        public GMapOverlay _selmarkOverlay = new GMapOverlay("selmark"); // оверлей с маркерами
+        public GMapOverlay _markerOverlay = new GMapOverlay("markers"); // оверлей с маркерами
+        public GMapOverlay _routesOverlay = new GMapOverlay("_routesOverlay");
         private int countpoints = 0; // счетчик маркеров
         private bool ispedestrian = false; // пеший маршрут
-        GMapMarker _currentMarker; // маркер
+        private GMapMarker _currentMarker; // маркер
+        private const double DefaultLatitude = 55.742;
+        private const double DefaultLongitude = 37.613;
+        private const int DefaultZoom = 10;
+        private const int MinZoom = 3;
+        private const int MaxZoom = 18;
+        private const double PedestrianSpeed = 5.5;
+        private const double DefaultVehicleSpeed = 30;
         public Form1()
         {
             InitializeComponent();
@@ -41,36 +48,40 @@ namespace TravelPlanningAppSusloparov
         private void Karta_Load(object sender, EventArgs e)
         {
             GMaps.Instance.Mode = AccessMode.CacheOnly;  // кеширование карты
-            string CacheDirectory = Directory.GetCurrentDirectory() + @"\mapcache";
-            if (Directory.Exists(CacheDirectory) == false) Directory.CreateDirectory(CacheDirectory);
+            string CacheDirectory = Path.Combine(Directory.GetCurrentDirectory(),"mapcache");
+            if (!Directory.Exists(CacheDirectory)) Directory.CreateDirectory(CacheDirectory);
             karta.CacheLocation = CacheDirectory;
             karta.DragButton = MouseButtons.Left; // лкм для перемещения карты
             karta.MapProvider = GMapProviders.OpenStreetMap; // провайдер карты
-            double latitude = 55.742; // ширина 
-            double longitude = 37.613; // долгота
-            karta.Position = new PointLatLng(latitude, longitude); // установка позиции карты
-            karta.MinZoom = 3; // минимальное увеличение
-            karta.MaxZoom = 18; // максимальное увеличение
-            karta.Zoom = 10; // увеличение по умолчанию
-            karta.Overlays.Add(selmarkoverlay); // наложение маркера выбора
-            karta.Overlays.Add(markeroverlay); // наложение маркеров местоположения
-            karta.Overlays.Add(routes);
+            karta.Position = new PointLatLng(DefaultLatitude, DefaultLongitude); // установка позиции карты
+            karta.MinZoom = MinZoom; // минимальное увеличение
+            karta.MaxZoom = MaxZoom; // максимальное увеличение
+            karta.Zoom = DefaultZoom; // увеличение по умолчанию
+            karta.Overlays.Add(_selmarkOverlay); // наложение маркера выбора
+            karta.Overlays.Add(_markerOverlay); // наложение маркеров местоположения
+            karta.Overlays.Add(_routesOverlay);
             _currentMarker = new GMarkerGoogle(karta.Position, GMarkerGoogleType.arrow); { _currentMarker.IsVisible = false; } // отключить видимость по умолчанию
-            selmarkoverlay.Markers.Add(_currentMarker); // добавление маркера
+            _selmarkOverlay.Markers.Add(_currentMarker); // добавление маркера
             karta.ShowCenter = false; // убрать центровой маркер
         }
 
+
         private void Addpointbutton_Click(object sender, EventArgs e)
         {
-            bool isfailed = false; // счетчик ошибки для поиска
-            if (countpoints < 2) // проверка счетчика
+            if (countpoints >= 2)
             {
-                if (_currentMarker.IsVisible == false && usesearchcb.Checked == false) MessageBox.Show("Не выбрана точка!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                else
-                {
-                    GMapMarker m1 = null, m2 = null; // инициализация точек
-                    PointLatLng markerpos;
-                    if (countpoints == 0) // если нет точек
+                MessageBox.Show("Невозможно добавить более чем 2 точки!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (_currentMarker.IsVisible == false && usesearchcb.Checked == false)
+            {
+                MessageBox.Show("Не выбрана точка!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            } 
+            bool isfailed = false; // счетчик ошибки для поиска
+            GMapMarker m1 = null, m2 = null; // инициализация точек
+            PointLatLng markerpos;
+            if (countpoints == 0) // если нет точек
                     {
                         if (usesearchcb.Checked == true) // если используется поиск (установлена галочка)
                         {
@@ -94,12 +105,11 @@ namespace TravelPlanningAppSusloparov
                             karta.Position = markerpos;
                             if (karta.Zoom < 12) karta.Zoom = 12;
                         }
-
                         if (isfailed == false)
                         {
                             _points.Add(markerpos);
                             countpoints++;
-                            markeroverlay.Markers.Add(m1); // добавление пиктограммы на карту
+                            _markerOverlay.Markers.Add(m1); // добавление пиктограммы на карту
                             if (nametextbox.Text != String.Empty) _pointnames.Add(nametextbox.Text); // добавление названия
                             else _pointnames.Add("пункт А");
                             m1.ToolTipText = "Начало: " + _pointnames[0]; // подсказка пиктограммы
@@ -107,7 +117,7 @@ namespace TravelPlanningAppSusloparov
                             statuslabel.Text = "Выбран только исходный пункт!";
                         }
                     }
-                    else
+            else
                     {
                         if (usesearchcb.Checked == true) // 
                         {
@@ -134,7 +144,7 @@ namespace TravelPlanningAppSusloparov
                         if (isfailed == false)
                         {
                             _points.Add(markerpos);
-                            markeroverlay.Markers.Add(m2);
+                            _markerOverlay.Markers.Add(m2);
                             if (nametextbox.Text != String.Empty) _pointnames.Add(nametextbox.Text);
                             else _pointnames.Add("пункт B");
                             m2.ToolTipText = "Конец: " + _pointnames[1];
@@ -146,9 +156,6 @@ namespace TravelPlanningAppSusloparov
                         }
                     }
                 }
-            }
-            else MessageBox.Show("Невозможно добавить более чем 2 точки!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
             
 
         private void Resetpointbutton_Click(object sender, EventArgs e)
@@ -157,30 +164,40 @@ namespace TravelPlanningAppSusloparov
             _pointnames.Clear();
             _currentMarker.IsVisible = false;
             statuslabel.Text = "Пункты не выбраны!";
-            markeroverlay.Clear();
+            _markerOverlay.Clear();
             karta.Refresh();
             countpoints = 0;
             distancelabel.Text = "Расстояние: не рассчитано";
             etalabel.Text = "Время в пути: не рассчитано";
-            routes.Clear();
+            _routesOverlay.Clear();
             howto2.Visible = true;
+        }
+        public static TimeSpan CalculateTravelTime(double distance, double speed)
+        {
+            if (speed <= 0)
+                throw new ArgumentException("Скорость должна быть больше нуля", nameof(speed));
+
+            double hours = distance / speed;
+            return TimeSpan.FromHours(hours);
         }
         private void Getrouteandtime_Click(object sender, EventArgs e)
         {
+            if (countpoints != 2)
+            {
+                MessageBox.Show("Не добавлены все точки!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             try
             {
-                if (countpoints != 2) MessageBox.Show("Не добавлены все точки!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                else
-                {
-                    statuslabel.Text = "Расчет маршрута...";
+                   statuslabel.Text = "Расчет маршрута...";
 
                     var route = OpenStreetMapProvider.Instance.GetRoute(_points[0], _points[1], false, ispedestrian, (int)karta.Zoom);
                     var r = new GMapRoute(route.Points, "Marshrut")
                     {
                         Stroke = new Pen(Color.Red, 5)
                     };
-                    
-                    routes.Routes.Add(r);
+                    _routesOverlay.Routes.Add(r);
                     karta.ZoomAndCenterRoute(r);
                     statuslabel.Text = "Маршрут расчитан";
                     double distance = route.Distance;
@@ -193,24 +210,30 @@ namespace TravelPlanningAppSusloparov
                         try
                         {
                             double speed = Convert.ToDouble(speedtextBox.Text);
-                            double time = distance / speed;
-                            time = Math.Round(time, 2);
-                            if (time < 1) {
-                                time *= 60;
-                                etalabel.Text = "Примерное время в пути равно " + time + " минут";
-
+                            TimeSpan traveltime = CalculateTravelTime(distance, speed);
+                            if (traveltime.TotalHours < 1)
+                            {
+                                etalabel.Text = $"Примерное время в пути равно: {traveltime.Minutes} мин";
                             }
-                            else etalabel.Text = "Примерное время в пути равно " + time + " часов";
+                            else if (traveltime.TotalHours < 24)
+                            {
+                                etalabel.Text = $"Примерное время в пути равно: {traveltime.Hours} ч {traveltime.Minutes} мин";
+                            }
+                            else
+                            {
+                                etalabel.Text = $"Примерное время в пути равно: {traveltime.Days} дн {traveltime.Hours} ч";
+                            }
+
                         }
                         catch (Exception)
                         {
                             MessageBox.Show("Было введено неправильное число!");
                         }
                     }
-                }
             }
-            catch (Exception) { MessageBox.Show("Ошибка построения маршрута!"); }
+            catch (Exception) { MessageBox.Show("Ошибка построения маршрута! Либо отсутствует интернет-соединение, либо введены неверные данные!"); }
         }
+
 
         private void Timecheckbox_CheckedChanged(object sender, EventArgs e)
         {
@@ -285,13 +308,13 @@ namespace TravelPlanningAppSusloparov
             {
                 howto.Text = "Введите названия исходного пункта для поиска";
                 helplabel1.Text = "Вращайте карту левой кнопкой мыши";
-                selmarkoverlay.IsVisibile = false;
+                _selmarkOverlay.IsVisibile = false;
             }
             else
             {
                 helplabel1.Text = "Вращайте карту левой кнп. мыши, указание пунктов - правой";
                 howto.Text = "Выберите пункт на карте и введите имя точки (необязательно)";
-                selmarkoverlay.IsVisibile = true;
+                _selmarkOverlay.IsVisibile = true;
             }
             
         }
