@@ -187,14 +187,6 @@ namespace TravelPlanningAppSusloparov
                 MessageBox.Show("Не добавлены все точки!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            try
-            {
-                CalculateAndDisplayRoute();
-            }
-            catch (Exception) { MessageBox.Show("Ошибка построения маршрута! Либо отсутствует интернет-соединение, либо введены неверные данные!"); }
-        }
-        private void CalculateAndDisplayRoute()
-        {
             statuslabel.Text = "Расчет маршрута...";
             var route = OpenStreetMapProvider.Instance.GetRoute(
                 _points[0],
@@ -204,7 +196,7 @@ namespace TravelPlanningAppSusloparov
                 (int)karta.Zoom);
             if (route == null)
             {
-                MessageBox.Show("Невозможно вычислить маршрут!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); ;
+                MessageBox.Show("Невозможно вычислить маршрут! Проверьте интернет-соединение", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); ;
                 return;
             }
             var r = new GMapRoute(route.Points, "Marshrut")
@@ -217,20 +209,17 @@ namespace TravelPlanningAppSusloparov
             double distance = route.Distance;
             if (_pointnames[0] == "пункт А") _pointnames[0] = "пункта А";
             if (_pointnames[1] == "пункт B") _pointnames[1] = "пункта B";
-            distance = Math.Truncate(distance * 100) / 100;
-            /*double meters = Math.Truncate(distance);
-            MessageBox.Show(meters.ToString());
-            // 22.09 -22 
-            Math.Round(meters, 2);
-            meters = distance - meters;
-            MessageBox.Show(meters.ToString());
-            if (meters == 0) { */
+            distance = Math.Truncate(distance * 1000) / 1000;
+            double meters = Math.Truncate(distance);
+            meters = Math.Round(distance - meters, 3);
+            if (meters == 0)
+            {
                 distancelabel.Text = "Расстояние от " + _pointnames[0] + " до " + _pointnames[1] + " равно " + distance + " км.";
-            /*}
-            else {
-                meters *= 100;
-                distancelabel.Text = "Расстояние от " + _pointnames[0] + " до " + _pointnames[1] + " равно " + distance + " км, "+meters+" м.";
-            } */
+            }
+            else
+            {
+                distancelabel.Text = "Расстояние от " + _pointnames[0] + " до " + _pointnames[1] + " равно " + Math.Truncate(distance) + " км. " + meters*1000 + " м.";
+            }
             if (timecheckbox.Checked == true)
             {
                 try
@@ -239,15 +228,15 @@ namespace TravelPlanningAppSusloparov
                     TimeSpan traveltime = CalculateTravelTime(distance, speed);
                     if (traveltime.TotalHours < 1)
                     {
-                        etalabel.Text = $"Примерное время в пути равно: {traveltime.Minutes} мин";
+                        etalabel.Text = $"Примерное время в пути равно: {traveltime.Minutes} мин {traveltime.Seconds} сек";
                     }
                     else if (traveltime.TotalHours < 24)
                     {
-                        etalabel.Text = $"Примерное время в пути равно: {traveltime.Hours} ч {traveltime.Minutes} мин";
+                        etalabel.Text = $"Примерное время в пути равно: {traveltime.Hours} ч {traveltime.Minutes} мин {traveltime.Seconds} сек";
                     }
                     else
                     {
-                        etalabel.Text = $"Примерное время в пути равно: {traveltime.Days} дн {traveltime.Hours} ч";
+                        etalabel.Text = $"Примерное время в пути равно: {traveltime.Days} дн {traveltime.Hours} ч {traveltime.Minutes} мин";
                     }
 
                 }
@@ -257,6 +246,7 @@ namespace TravelPlanningAppSusloparov
                 }
             }
         }
+        
 
 
         private void Timecheckbox_CheckedChanged(object sender, EventArgs e)
@@ -304,26 +294,31 @@ namespace TravelPlanningAppSusloparov
 
         private void Zoomplus_Click(object sender, EventArgs e)
         {
-            karta.Zoom = karta.Zoom++;
+            karta.Zoom++;
         }
 
         private void Zoomminus_Click(object sender, EventArgs e)
         {
-            karta.Zoom = karta.Zoom--;
+            karta.Zoom--;
         }
 
         private void Karta_OnMapZoomChanged()
         {
-            if (karta.Zoom == karta.MinZoom)
+            if (karta.Zoom != MinZoom && karta.Zoom != MaxZoom)
+            {
+                if (zoomplus.Enabled == false) zoomplus.Enabled = true;
+                if (zoomminus.Enabled == false) zoomminus.Enabled = true;
+            }
+            else if (karta.Zoom == MinZoom)
             {
                 zoomminus.Enabled = false;
                 if (zoomplus.Enabled == false) zoomplus.Enabled = true;
             }
-            if (karta.Zoom == karta.MaxZoom)
+            else
             {
                 zoomplus.Enabled = false;
                 if (zoomminus.Enabled == false) zoomminus.Enabled = true;
-            }
+            }   
         }
 
         private void Usesearchcb_CheckedChanged(object sender, EventArgs e)
@@ -537,5 +532,4 @@ namespace TravelPlanningAppSusloparov
 }
 // баги: 
 // 1) добавить комментарии и исправить дипсиковские комменты
-// 2) мб сделать базу sqlite для вещей?
-// 3) рассчитать метры в расстоянии 
+// 2) сделать базу sqlite для вещей?
