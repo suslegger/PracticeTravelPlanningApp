@@ -392,9 +392,9 @@ namespace TravelPlanningAppSusloparov
 
         private void Rembuttonth_Click(object sender, EventArgs e)
         {
-            if (dbFileName == null)
+            if (m_dbConn.State != ConnectionState.Open)
             {
-                MessageBox.Show("БД не подключена!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("БД не подключена! Создайте или загрузите БД!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             try
@@ -446,7 +446,7 @@ namespace TravelPlanningAppSusloparov
                     m_dbConn = new SQLiteConnection("Data Source=" + dbFileName + ";Version=3;");
                     m_dbConn.Open();
                     m_sqlCmd.Connection = m_dbConn;
-                    savebuttonth.Text = "Сохранить";
+                    savebuttonth.Text = "Сохранить и отключить";
                     dbStatusLabel.Text = "БД успешно подключена.";
                     try
                     {
@@ -478,10 +478,7 @@ namespace TravelPlanningAppSusloparov
         {
             if (m_dbConn.State != ConnectionState.Open)
             {
-                DialogResult result = MessageBox.Show("БД не подключена! Хотите создать и загрузить БД?", "Вопрос", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (result == DialogResult.Yes)
-                {
-                    SaveFileDialog sfd = new SaveFileDialog();
+                SaveFileDialog sfd = new SaveFileDialog();
                     {
                         sfd.Title = "Выберите место для сохранения БД";
                         sfd.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*";
@@ -497,67 +494,36 @@ namespace TravelPlanningAppSusloparov
                             m_sqlCmd.Connection = m_dbConn;
                             m_sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS TravelItems (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount TEXT)";
                             m_sqlCmd.ExecuteNonQuery();
-                            dbStatusLabel.Text = "БД успешно создана.";
+                            dbStatusLabel.Text = "БД успешно создана и подключена.";
                             savebuttonth.Text = "Сохранить";
                             return;
                         }
                         catch (SQLiteException ex)
                         {
-                            dbStatusLabel.Text = "Ошибка подключеня к БД! Нажмите для создания новой.";
+                            dbStatusLabel.Text = "Ошибка подключеня к БД!";
                             MessageBox.Show("Ошибка подключения к БД: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
-                    }
-                    return;
                 }
                 else { return; }
             }
             else
             {
-                // Создаем диалог сохранения файла
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                DialogResult result = MessageBox.Show("Хотите выбрать место сохранения базы данных?", "Вопрос", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
                 {
-                    saveFileDialog.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*";
-                    saveFileDialog.Title = "Выберите место для сохранения БД";
-                    saveFileDialog.DefaultExt = "sqlite";
-                }
-
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    /*try
+                    // Создаем диалог сохранения файла
+                    SaveFileDialog saveFileDialog = new SaveFileDialog();
                     {
-                        // Создаем StreamWriter для записи в файл
-                        using (StreamWriter writer = new StreamWriter(saveFileDialog.FileName))
-                        {
-                            // Записываем заголовки столбцов
-                            for (int i = 0; i < neededdgv.Columns.Count; i++)
-                            {
-                                writer.Write(neededdgv.Columns[i].HeaderText);
-                                if (i < neededdgv.Columns.Count - 1)
-                                {
-                                    writer.Write("\t"); // Табуляция как разделитель
-                                }
-                            }
-                            writer.WriteLine();
-
-
-
-                            // Записываем данные из строк
-                            foreach (DataGridViewRow row in neededdgv.Rows)
-                            {
-                                if (!row.IsNewRow) // Пропускаем новую строку, если она есть
-                                {
-                                    for (int i = 0; i < neededdgv.Columns.Count; i++)
-                                    {
-                                        writer.Write(row.Cells[i].Value?.ToString() ?? "");
-                                        if (i < neededdgv.Columns.Count - 1)
-                                        {
-                                            writer.Write("\t"); // Табуляция как разделитель
-                                        }
-                                    }
-                                    writer.WriteLine();
-                                }
-                            }
-                        }
+                        saveFileDialog.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*";
+                        saveFileDialog.Title = "Выберите место для сохранения БД";
+                        saveFileDialog.DefaultExt = "sqlite";
+                    }
+                }
+                try
+                    {
+                        m_dbConn.Close();
+                        dbStatusLabel.Text = "БД успешно отключена и сохранена.";
+                        savebuttonth.Text = "Создать БД";
                     }
                     catch (Exception ex)
                     {
@@ -565,19 +531,13 @@ namespace TravelPlanningAppSusloparov
                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-                    
-                MessageBox.Show("Список вещей успешно сохранен!", "Успех",
-                              MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    */
-                }
             }
-        }
 
         private void Cleanallbutton_Click(object sender, EventArgs e)
         {
             if (m_dbConn.State != ConnectionState.Open)
             {
-                MessageBox.Show("БД не подключена!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("БД не подключена! Создайте или загрузите БД!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             try
@@ -614,8 +574,4 @@ namespace TravelPlanningAppSusloparov
   
 // баги/задачи: 
 // 1) добавить комментарии к реализации списка вещей и исправить дипсиковские комменты к реализации
-// 2) сделать базу sqlite для вещей
-// 3) переделать базу sqlite
-// работает : создание, полная очистка, открытие, удаление
-// предлагать при сохранении закрытие БД
-// косяк - номер по порядку ломается - либо скрыть, либо исправить
+// 2) сделать базу sqlite для вещей (всё работает, но есть косяк - номер по порядку ломается - либо скрыть, либо исправить)

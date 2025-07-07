@@ -416,7 +416,7 @@
             this.loadbuttonth.Name = "loadbuttonth";
             this.loadbuttonth.Size = new System.Drawing.Size(109, 48);
             this.loadbuttonth.TabIndex = 28;
-            this.loadbuttonth.Text = "Загрузить";
+            this.loadbuttonth.Text = "Загрузить БД";
             this.loadbuttonth.UseVisualStyleBackColor = true;
             this.loadbuttonth.Click += new System.EventHandler(this.Loadbuttonth_Click);
             // 
@@ -428,7 +428,7 @@
             this.savebuttonth.Name = "savebuttonth";
             this.savebuttonth.Size = new System.Drawing.Size(109, 48);
             this.savebuttonth.TabIndex = 27;
-            this.savebuttonth.Text = "Создать";
+            this.savebuttonth.Text = "Создать БД";
             this.savebuttonth.UseVisualStyleBackColor = true;
             this.savebuttonth.Click += new System.EventHandler(this.Savebuttonth_Click);
             // 
