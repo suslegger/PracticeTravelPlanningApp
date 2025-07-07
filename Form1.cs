@@ -334,12 +334,14 @@ namespace TravelPlanningAppSusloparov
                 howto.Text = "Введите названия исходного пункта для поиска";
                 helplabel1.Text = "Вращайте карту левой кнопкой мыши";
                 _selmarkOverlay.IsVisibile = false; // убрать видимость маркера выбора
+                addpointbutton.Text = "Найти место";
             }
             else
             {
                 helplabel1.Text = "Вращайте карту левой кнп. мыши, указание пунктов - правой";
                 howto.Text = "Выберите пункт на карте и введите имя точки (необязательно)";
                 _selmarkOverlay.IsVisibile = true; // показать маркер выбора
+                addpointbutton.Text = "Выбрать пункт";
             }
 
         }
