@@ -24,19 +24,20 @@ namespace TravelPlanningAppSusloparov
     {
         public List<PointLatLng> _points; // лист с маркерами
         public List<String> _pointnames; // лист с названиями маркеров
-        public GMapOverlay _selmarkOverlay = new GMapOverlay("selmark"); // оверлей с маркерами
+        public GMapOverlay _selmarkOverlay = new GMapOverlay("selmark"); // оверлей со стрелкой-маркером
         public GMapOverlay _markerOverlay = new GMapOverlay("markers"); // оверлей с маркерами
-        public GMapOverlay _routesOverlay = new GMapOverlay("_routesOverlay");
+        public GMapOverlay _routesOverlay = new GMapOverlay("_routesOverlay"); // оверлей для маршрутов
         private int _countPoints = 0; // счетчик маркеров
         private bool _isPedestrian = false; // пеший маршрут
         private GMapMarker _currentMarker; // маркер
-        private const double DefaultLatitude = 55.742;
-        private const double DefaultLongitude = 37.613;
-        private const int DefaultZoom = 10;
-        private const int MinZoom = 3;
-        private const int MaxZoom = 18;
-        private const double PedestrianSpeed = 5.5;
-        private const double DefaultVehicleSpeed = 30;
+        private const double DefaultLatitude = 55.742; // стандартная широта
+        private const double DefaultLongitude = 37.613; // стандартная долгота
+        private const int DefaultZoom = 10; // стандартное увеличение
+        private const int MinZoom = 3; // минимальное увеличение
+        private const int MaxZoom = 18; // максимальное увеличение
+        private const double PedestrianSpeed = 5.5; // средняя скорость пешехода
+        private const double DefaultVehicleSpeed = 30; // средняя скорость автомобиля
+
         public Form1()
         {
             InitializeComponent();
@@ -47,10 +48,10 @@ namespace TravelPlanningAppSusloparov
          
         private void Karta_Load(object sender, EventArgs e)
         {
-            GMaps.Instance.Mode = AccessMode.CacheOnly;  // кеширование карты
-            string CacheDirectory = Path.Combine(Directory.GetCurrentDirectory(),"mapcache");
-            if (!Directory.Exists(CacheDirectory)) Directory.CreateDirectory(CacheDirectory);
-            karta.CacheLocation = CacheDirectory;
+            GMaps.Instance.Mode = AccessMode.ServerAndCache;  // режим кеширование карты
+            string CacheDirectory = Path.Combine(Directory.GetCurrentDirectory(),"cache"); // папка кеширования карты
+            if (!Directory.Exists(CacheDirectory)) Directory.CreateDirectory(CacheDirectory); // если нет папки - создать
+            karta.CacheLocation = CacheDirectory; // назначение папки кеша
             karta.DragButton = MouseButtons.Left; // лкм для перемещения карты
             karta.MapProvider = GMapProviders.OpenStreetMap; // провайдер карты
             karta.Position = new PointLatLng(DefaultLatitude, DefaultLongitude); // установка позиции карты
@@ -59,7 +60,7 @@ namespace TravelPlanningAppSusloparov
             karta.Zoom = DefaultZoom; // увеличение по умолчанию
             karta.Overlays.Add(_selmarkOverlay); // наложение маркера выбора
             karta.Overlays.Add(_markerOverlay); // наложение маркеров местоположения
-            karta.Overlays.Add(_routesOverlay);
+            karta.Overlays.Add(_routesOverlay); // наложение маршрута
             _currentMarker = new GMarkerGoogle(karta.Position, GMarkerGoogleType.arrow); { _currentMarker.IsVisible = false; } // отключить видимость по умолчанию
             _selmarkOverlay.Markers.Add(_currentMarker); // добавление маркера
             karta.ShowCenter = false; // убрать центровой маркер
@@ -68,19 +69,19 @@ namespace TravelPlanningAppSusloparov
 
         private void Addpointbutton_Click(object sender, EventArgs e)
         {
-            if (_countPoints >= 2)
+            if (_countPoints >= 2) // если точек 2 или более - не давать создать ещё точки
             {
                 MessageBox.Show("Невозможно добавить более чем 2 точки!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            if (_currentMarker.IsVisible == false && usesearchcb.Checked == false)
+            if (_currentMarker.IsVisible == false && usesearchcb.Checked == false) // если точка не выбрана в режиме точек
             {
                 MessageBox.Show("Не выбрана точка!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             } 
             bool isfailed = false; // счетчик ошибки для поиска
             GMapMarker m1 = null, m2 = null; // инициализация точек
-            PointLatLng markerpos;
+            PointLatLng markerpos; // инициализация местоположения маркера
             if (_countPoints == 0) // если нет точек
                     {
                         if (usesearchcb.Checked == true) // если используется поиск (установлена галочка)
@@ -95,32 +96,32 @@ namespace TravelPlanningAppSusloparov
                             {
                                 karta.Position = markerpos; // расположить карту в этом месте
                                 m1 = new GMarkerGoogle(new PointLatLng(karta.Position.Lat, karta.Position.Lng), GMarkerGoogleType.green_dot); // добавление маркера
-                                if (karta.Zoom < 12) karta.Zoom = 12;
+                                if (karta.Zoom < 12) karta.Zoom = 12; // увеличить карту на этой точке
                             }
                         }
                         else
                         {
                             markerpos = new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng);
                             m1 = new GMarkerGoogle(markerpos, GMarkerGoogleType.green_dot); // добавление маркера по выбору на карте
-                            karta.Position = markerpos;
-                            if (karta.Zoom < 12) karta.Zoom = 12;
-                        }
-                        if (isfailed == false)
+                            karta.Position = markerpos; // расположить карту в этом месте
+                            if (karta.Zoom < 12) karta.Zoom = 12; // увеличить карту на этой точке
+                }
+                        if (isfailed == false) // если нет ошибок
                         {
-                            _points.Add(markerpos);
-                            _countPoints++;
+                            _points.Add(markerpos); // добавить точку в список
+                            _countPoints++; // увеличить счётчик точек
                             _markerOverlay.Markers.Add(m1); // добавление пиктограммы на карту
                             if (nametextbox.Text != String.Empty) _pointnames.Add(nametextbox.Text); // добавление названия
-                            else _pointnames.Add("пункт А");
+                            else _pointnames.Add("пункт А"); // если нет - использовать стандартное
                             m1.ToolTipText = "Начало: " + _pointnames[0]; // подсказка пиктограммы
-                            m1.ToolTipMode = MarkerTooltipMode.Always;
-                            statuslabel.Text = "Выбран только исходный пункт!";
+                            m1.ToolTipMode = MarkerTooltipMode.Always; // добавление пиктограммы
+                            statuslabel.Text = "Выбран только исходный пункт!"; // изменение текста статуса
                         }
                     }
-            else
+            else // если есть одна точка
                     {
-                        if (usesearchcb.Checked == true) // 
-                        {
+                        if (usesearchcb.Checked == true) // если используется поиск (установлена галочка)
+                {
                             karta.GetPositionByKeywords(nametextbox.Text, out markerpos);
                             if (markerpos.ToString() == "{Lat=0, Lng=0}")
                             {
