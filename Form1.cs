@@ -406,14 +406,15 @@ namespace TravelPlanningAppSusloparov
                 }
                 else if ((MessageBox.Show("Вы уверены, что хотите удалить выбранную вещь?", "Подтвердите операцию", MessageBoxButtons.YesNo, MessageBoxIcon.Question)) == DialogResult.Yes)
                 {
-                    int removerow = neededdgv.SelectedCells[0].RowIndex;
+                    //MessageBox.Show(neededdgv.SelectedCells.ToString());
+                    
                     string sqlQuery = "DELETE FROM TravelItems WHERE name='"+neededdgv.SelectedCells[0].Value+"';";
                     using (var command = new SQLiteCommand(sqlQuery, m_dbConn))
                     {
                         command.ExecuteNonQuery();
                         command.Dispose();
                     }
-                    neededdgv.Rows.RemoveAt(removerow);
+                    neededdgv.Rows.RemoveAt(neededdgv.SelectedCells[0].RowIndex);
                 }
             }
             catch (Exception ex) { MessageBox.Show("Ошибка удаления строки! " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
@@ -424,6 +425,7 @@ namespace TravelPlanningAppSusloparov
             neededdgv.Columns.Add("id", "Номер п/п");
             neededdgv.Columns.Add("namec", "Название вещи");
             neededdgv.Columns.Add("amountc", "Количество");
+            neededdgv.Columns["id"].Visible = false;
             m_dbConn = new SQLiteConnection();
             m_sqlCmd = new SQLiteCommand();
             dbStatusLabel.Text = "База данных не подключена. Для создания БД нажмите кнопку 'Создать'.";
@@ -573,5 +575,5 @@ namespace TravelPlanningAppSusloparov
 }
   
 // баги/задачи: 
-// 1) добавить комментарии к реализации списка вещей и исправить дипсиковские комменты к реализации
-// 2) сделать базу sqlite для вещей (всё работает, но есть косяк - номер по порядку ломается - либо скрыть, либо исправить)
+// 1) добавить комментарии к реализации списка вещей и исправить дипсиковские комменты к реализации 
+// 2) доработать функцию добавления и удаления строки таблицы и протестировать работу с БД
