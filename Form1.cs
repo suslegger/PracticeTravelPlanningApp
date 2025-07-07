@@ -43,6 +43,7 @@ namespace TravelPlanningAppSusloparov
         private string dbFileName;
         private SQLiteConnection m_dbConn;
         private SQLiteCommand m_sqlCmd;
+        private int dgvid;
 
 
         public MainForm()
@@ -331,7 +332,7 @@ namespace TravelPlanningAppSusloparov
         {
             if (usesearchcb.Checked == true) // если поставлена галочка поиска, показывать один текст подсказки, если нет - другой
             {
-                howto.Text = "Введите названия исходного пункта для поиска";
+                howto.Text = "Введите названия места для поиска";
                 helplabel1.Text = "Вращайте карту левой кнопкой мыши";
                 _selmarkOverlay.IsVisibile = false; // убрать видимость маркера выбора
                 addpointbutton.Text = "Найти место";
@@ -363,33 +364,41 @@ namespace TravelPlanningAppSusloparov
                 MessageBox.Show("БД не подключена! Создайте или загрузите БД!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            else
-                try
-                {
-                    DataTable dTable = new DataTable();
-                    string sqlQuery = @"
+            else if (namethtextBox.Text == String.Empty || amountthtextBox.Text == String.Empty)
+            {
+                MessageBox.Show("Не было указано название вещи и/или количество!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+                else
+                        try
+                        {
+                            DataTable dTable = new DataTable();
+                            string sqlQuery = @"
                 INSERT INTO TravelItems (name, amount)
                 VALUES (@name, @amount)";
-                        using (var command = new SQLiteCommand(sqlQuery, m_dbConn))
-                        {
-                            command.Parameters.AddWithValue("@name", namethtextBox.Text);
-                            command.Parameters.AddWithValue("@amount", amountthtextBox.Text);
-                            command.ExecuteNonQuery();
+                            using (var command = new SQLiteCommand(sqlQuery, m_dbConn))
+                            {
+                                command.Parameters.AddWithValue("@name", namethtextBox.Text);
+                                command.Parameters.AddWithValue("@amount", amountthtextBox.Text);
+                                command.ExecuteNonQuery();
+                            }
+                            sqlQuery = "SELECT * FROM TravelItems";
+                            SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn);
+                            adapter.Fill(dTable);
+                            if (dTable.Rows.Count > 0)
+                            {
+                                neededdgv.Rows.Clear();
+                                for (int i = 0; i < dTable.Rows.Count; i++)
+                                    neededdgv.Rows.Add(dTable.Rows[i].ItemArray);
+                            }
+                            namethtextBox.Text = "";
+                            amountthtextBox.Text = "";
+                            dbStatusLabel.Text = "Вещь добавлена в базу данных.";
                         }
-                        sqlQuery = "SELECT * FROM TravelItems";
-                        SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn);
-                        adapter.Fill(dTable);
-                        if (dTable.Rows.Count > 0)
+                        catch (SQLiteException ex)
                         {
-                            neededdgv.Rows.Clear();
-                            for (int i = 0; i < dTable.Rows.Count; i++)
-                                neededdgv.Rows.Add(dTable.Rows[i].ItemArray);
+                            MessageBox.Show("Ошибка подключения к БД: " + ex.Message);
                         }
-                }
-                catch (SQLiteException ex)
-                {
-                    MessageBox.Show("Ошибка подключения к БД: " + ex.Message);
-                }
         }
 
         private void Rembuttonth_Click(object sender, EventArgs e)
@@ -406,17 +415,22 @@ namespace TravelPlanningAppSusloparov
                     MessageBox.Show("В таблице нет вещей!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+                else if (neededdgv.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Пожалуйста, выберите строку для удаления", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
                 else if ((MessageBox.Show("Вы уверены, что хотите удалить выбранную вещь?", "Подтвердите операцию", MessageBoxButtons.YesNo, MessageBoxIcon.Question)) == DialogResult.Yes)
                 {
-                    //MessageBox.Show(neededdgv.SelectedCells.ToString());
-                    
-                    string sqlQuery = "DELETE FROM TravelItems WHERE name='"+neededdgv.SelectedCells[0].Value+"';";
+                    DataGridViewRow selectedRow = neededdgv.SelectedRows[0];
+                    string sqlQuery = "DELETE FROM TravelItems WHERE id = @id";
                     using (var command = new SQLiteCommand(sqlQuery, m_dbConn))
                     {
+                        command.Parameters.AddWithValue("@id", dgvid);
                         command.ExecuteNonQuery();
-                        command.Dispose();
                     }
-                    neededdgv.Rows.RemoveAt(neededdgv.SelectedCells[0].RowIndex);
+                    neededdgv.Rows.Remove(selectedRow);
+                    dbStatusLabel.Text = "Вещь удалена из базы данных.";
                 }
             }
             catch (Exception ex) { MessageBox.Show("Ошибка удаления строки! " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
@@ -512,7 +526,7 @@ namespace TravelPlanningAppSusloparov
             }
             else
             {
-                DialogResult result = MessageBox.Show("Хотите выбрать место сохранения базы данных?", "Вопрос", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                DialogResult result = MessageBox.Show("Хотите выбрать иное место сохранения базы данных? (Сохранить как)", "Вопрос", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
                     // Создаем диалог сохранения файла
@@ -562,6 +576,7 @@ namespace TravelPlanningAppSusloparov
                             m_sqlCmd.ExecuteNonQuery();
                         }
                         neededdgv.Rows.Clear();
+                        dbStatusLabel.Text = "База данных успешно очищена.";
                     }
                     catch (SQLiteException ex)
                     {
@@ -573,9 +588,19 @@ namespace TravelPlanningAppSusloparov
             catch { MessageBox.Show("Ошибка очистки списка!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 
         }
+
+        private void NeededDGV_SelectionChanged(object sender, EventArgs e)
+        {
+            DataGridViewSelectedRowCollection t = neededdgv.SelectedRows;
+            if (t.Count > 0)
+            {
+                DataGridViewRow row = t[0];
+                dgvid = Convert.ToInt32(row.Cells[0].Value);
+                namethtextBox.Text = Convert.ToString(row.Cells[1].Value).Trim();
+                amountthtextBox.Text = Convert.ToString(row.Cells[2].Value).Trim();
+            }
+
+        }
     }      
 }
-  
-// баги/задачи: 
-// 1) добавить комментарии к реализации списка вещей и исправить дипсиковские комменты к реализации 
-// 2) доработать функцию добавления и удаления строки таблицы и протестировать работу с БД
+// добавить комментарии к реализации списка вещей и исправить дипсиковские комменты к реализации 
