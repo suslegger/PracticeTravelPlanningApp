@@ -347,16 +347,11 @@ namespace TravelPlanningAppSusloparov
 
         }
 
-        private void Exitbuttonmap_Click(object sender, EventArgs e)
+        private void Exitbutton_Click(object sender, EventArgs e)
         {
             this.Close(); // выйти из программы
         }
         // список необходимых предметов
-        private void Exitbuttonthings_Click(object sender, EventArgs e)
-        {
-            this.Close(); // выйти из программы
-        }
-
         private void Addbuttonth_Click(object sender, EventArgs e)
         {
             if (m_dbConn.State != ConnectionState.Open) // если соединение закрыто (нет подключение к БД)

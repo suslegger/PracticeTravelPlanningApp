@@ -192,7 +192,7 @@
             this.exitbuttonmap.TabIndex = 19;
             this.exitbuttonmap.Text = "Выйти";
             this.exitbuttonmap.UseVisualStyleBackColor = true;
-            this.exitbuttonmap.Click += new System.EventHandler(this.Exitbuttonmap_Click);
+            this.exitbuttonmap.Click += new System.EventHandler(this.Exitbutton_Click);
             // 
             // usesearchcb
             // 
@@ -519,7 +519,7 @@
             this.exitbuttonthings.TabIndex = 20;
             this.exitbuttonthings.Text = "Выйти";
             this.exitbuttonthings.UseVisualStyleBackColor = true;
-            this.exitbuttonthings.Click += new System.EventHandler(this.Exitbuttonthings_Click);
+            this.exitbuttonthings.Click += new System.EventHandler(this.Exitbutton_Click);
             // 
             // neededdgv
             // 
