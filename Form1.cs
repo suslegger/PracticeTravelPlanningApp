@@ -601,4 +601,3 @@ namespace TravelPlanningAppSusloparov
         }
     }      
 }
-// сделать поле с количеством числовым?
