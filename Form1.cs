@@ -452,7 +452,7 @@ namespace TravelPlanningAppSusloparov
             // Создаем диалог открытия файла
             OpenFileDialog openFileDialog = new OpenFileDialog(); // диалог откытия файла с заголовком и фильтром
             {
-                openFileDialog.Filter = "SQLite databases (*.sqlite)|*.sqlite|All files (*.*)|*.*";
+                openFileDialog.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*";
                 openFileDialog.Title = "Загрузить базу данных";
             }
 
