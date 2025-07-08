@@ -167,6 +167,8 @@ namespace TravelPlanningAppSusloparov
 
         private void Resetpointbutton_Click(object sender, EventArgs e)
         {
+            if (_countPoints != 0)
+            {
             _points.Clear(); // очистить список точек
             _pointnames.Clear(); // очистить список названий точек
             _currentMarker.IsVisible = false; // убрать видимость маркера выбора
@@ -178,6 +180,12 @@ namespace TravelPlanningAppSusloparov
             etalabel.Text = "Время в пути: не рассчитано"; // текст времени в пути
             _routesOverlay.Clear(); // очистить наложение маршрутов
             howto2.Visible = true; // показать подсказку, как выбрать пункт
+            }
+            else
+            {
+                MessageBox.Show("Не добавлены точки!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
         }
         public static TimeSpan CalculateTravelTime(double distance, double speed)
         {
