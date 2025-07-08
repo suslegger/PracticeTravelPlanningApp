@@ -359,12 +359,12 @@ namespace TravelPlanningAppSusloparov
 
         private void Addbuttonth_Click(object sender, EventArgs e)
         {
-            if (m_dbConn.State != ConnectionState.Open)
+            if (m_dbConn.State != ConnectionState.Open) // если соединение закрыто (нет подключение к БД)
             {
                 MessageBox.Show("БД не подключена! Создайте или загрузите БД!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            else if (namethtextBox.Text == String.Empty || amountthtextBox.Text == String.Empty)
+            else if (namethtextBox.Text == String.Empty || amountthtextBox.Text == String.Empty) // если поля пустые
             {
                 MessageBox.Show("Не было указано название вещи и/или количество!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -372,30 +372,30 @@ namespace TravelPlanningAppSusloparov
                 else
                         try
                         {
-                            DataTable dTable = new DataTable();
+                            DataTable dTable = new DataTable(); // создание таблицы данных
                             string sqlQuery = @"
                 INSERT INTO TravelItems (name, amount)
-                VALUES (@name, @amount)";
-                            using (var command = new SQLiteCommand(sqlQuery, m_dbConn))
+                VALUES (@name, @amount)"; // запрос SQL на добавление в базу строки
+                            using (var command = new SQLiteCommand(sqlQuery, m_dbConn)) // новая команда SQL (с запросом и параметрами подключения)
                             {
-                                command.Parameters.AddWithValue("@name", namethtextBox.Text);
-                                command.Parameters.AddWithValue("@amount", amountthtextBox.Text);
-                                command.ExecuteNonQuery();
+                                command.Parameters.AddWithValue("@name", namethtextBox.Text); // параметр в запросе @name = поле nametxhtextbox.text
+                                command.Parameters.AddWithValue("@amount", amountthtextBox.Text); // @amount = amountthtextbox.text
+                                command.ExecuteNonQuery(); // выполнить команды
                             }
-                            sqlQuery = "SELECT * FROM TravelItems";
-                            SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn);
-                            adapter.Fill(dTable);
-                            if (dTable.Rows.Count > 0)
+                            sqlQuery = "SELECT * FROM TravelItems"; // запрос на выборку данных
+                            SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn); // новый адаптер данных
+                            adapter.Fill(dTable); // заполнить адаптер данными с таблицы
+                            if (dTable.Rows.Count > 0) // если в таблице есть данные
                             {
-                                neededdgv.Rows.Clear();
-                                for (int i = 0; i < dTable.Rows.Count; i++)
+                                neededdgv.Rows.Clear(); // очистить dgv
+                                for (int i = 0; i < dTable.Rows.Count; i++) // заполнение в цикле данными из таблицы
                                     neededdgv.Rows.Add(dTable.Rows[i].ItemArray);
                             }
-                            namethtextBox.Text = "";
+                            namethtextBox.Text = ""; // сделать поля названия и количества пустыми
                             amountthtextBox.Text = "";
-                            dbStatusLabel.Text = "Вещь добавлена в базу данных.";
+                            dbStatusLabel.Text = "Вещь добавлена в базу данных."; // изменить статус
                         }
-                        catch (SQLiteException ex)
+                        catch (SQLiteException ex) // при ошибке вывести сообщение об ошибке
                         {
                             MessageBox.Show("Ошибка подключения к БД: " + ex.Message);
                         }
@@ -403,33 +403,33 @@ namespace TravelPlanningAppSusloparov
 
         private void Rembuttonth_Click(object sender, EventArgs e)
         {
-            if (m_dbConn.State != ConnectionState.Open)
+            if (m_dbConn.State != ConnectionState.Open) // если соединение закрыто (нет подключение к БД)
             {
                 MessageBox.Show("БД не подключена! Создайте или загрузите БД!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             try
             {
-                if (neededdgv.Rows.Count == 0)
+                if (neededdgv.Rows.Count == 0) // если таблица пустая
                 {
                     MessageBox.Show("В таблице нет вещей!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                else if (neededdgv.SelectedRows.Count == 0)
+                else if (neededdgv.SelectedRows.Count == 0) // если строка не выбрана
                 {
                     MessageBox.Show("Пожалуйста, выберите строку для удаления", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
                 else if ((MessageBox.Show("Вы уверены, что хотите удалить выбранную вещь?", "Подтвердите операцию", MessageBoxButtons.YesNo, MessageBoxIcon.Question)) == DialogResult.Yes)
                 {
-                    DataGridViewRow selectedRow = neededdgv.SelectedRows[0];
-                    string sqlQuery = "DELETE FROM TravelItems WHERE id = @id";
-                    using (var command = new SQLiteCommand(sqlQuery, m_dbConn))
+                    DataGridViewRow selectedRow = neededdgv.SelectedRows[0]; // обозначение выбранного поля
+                    string sqlQuery = "DELETE FROM TravelItems WHERE id = @id"; // запрос SQL на удаление
+                    using (var command = new SQLiteCommand(sqlQuery, m_dbConn)) // команда SQL
                     {
-                        command.Parameters.AddWithValue("@id", dgvid);
-                        command.ExecuteNonQuery();
+                        command.Parameters.AddWithValue("@id", dgvid); // добавить параметр id в запрос
+                        command.ExecuteNonQuery(); // выполнить (удалить из БД)
                     }
-                    neededdgv.Rows.Remove(selectedRow);
+                    neededdgv.Rows.Remove(selectedRow); // удалить строку из dgv
                     dbStatusLabel.Text = "Вещь удалена из базы данных.";
                 }
             }
@@ -438,44 +438,43 @@ namespace TravelPlanningAppSusloparov
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            neededdgv.Columns.Add("id", "Номер п/п");
+            neededdgv.Columns.Add("id", "Номер п/п"); // добаить колонки в 
             neededdgv.Columns.Add("namec", "Название вещи");
             neededdgv.Columns.Add("amountc", "Количество");
-            neededdgv.Columns["id"].Visible = false;
-            m_dbConn = new SQLiteConnection();
-            m_sqlCmd = new SQLiteCommand();
-            dbStatusLabel.Text = "База данных не подключена. Для создания БД нажмите кнопку 'Создать'.";
+            neededdgv.Columns["id"].Visible = false; // убрать видимость строки с ИД
+            m_dbConn = new SQLiteConnection(); // инициализация соединения
+            m_sqlCmd = new SQLiteCommand(); // инициализация команды
+            dbStatusLabel.Text = "База данных не подключена. Для создания БД нажмите кнопку 'Создать'."; // статус
         }
         private void Loadbuttonth_Click(object sender, EventArgs e)
         {
-            if (m_dbConn.State != ConnectionState.Open) m_dbConn.Close();
+            if (m_dbConn.State != ConnectionState.Open) m_dbConn.Close(); // если есть подключение - отключиться
             // Создаем диалог открытия файла
-            OpenFileDialog openFileDialog = new OpenFileDialog();
+            OpenFileDialog openFileDialog = new OpenFileDialog(); // диалог откытия файла с заголовком и фильтром
             {
                 openFileDialog.Filter = "SQLite databases (*.sqlite)|*.sqlite|All files (*.*)|*.*";
                 openFileDialog.Title = "Загрузить базу данных";
             }
 
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() == DialogResult.OK) // если нажата клавиша ОК
             {
                 try
                 {
-                    dbFileName = openFileDialog.FileName;
-                    m_dbConn = new SQLiteConnection("Data Source=" + dbFileName + ";Version=3;");
-                    m_dbConn.Open();
-                    m_sqlCmd.Connection = m_dbConn;
-                    savebuttonth.Text = "Сохранить и отключить";
+                    dbFileName = openFileDialog.FileName; // имя файла
+                    m_dbConn = new SQLiteConnection("Data Source=" + dbFileName + ";Version=3;"); // создание соединения
+                    m_dbConn.Open(); // открыте соединения
+                    savebuttonth.Text = "Сохранить и отключить"; // изменение текста кнопки сохранения
                     dbStatusLabel.Text = "БД успешно подключена.";
                     try
                     {
-                        DataTable dTable = new DataTable();
-                        string sqlQuery = "SELECT * FROM TravelItems";
-                        SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn);
-                        adapter.Fill(dTable);
-                        if (dTable.Rows.Count > 0)
+                        DataTable dTable = new DataTable(); // инициализация таблицы данных
+                        string sqlQuery = "SELECT * FROM TravelItems"; // запрос SQL на выборку данных
+                        SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn); // инициализация адаптера sqlite
+                        adapter.Fill(dTable); // заполнение адаптера данными
+                        if (dTable.Rows.Count > 0) // если таблицы не пустая
                             {
-                                neededdgv.Rows.Clear();
-                                for (int i = 0; i < dTable.Rows.Count; i++)
+                                neededdgv.Rows.Clear(); // очистить dgv
+                                for (int i = 0; i < dTable.Rows.Count; i++) // цикл заполнения dgv данными из dtable
                                     neededdgv.Rows.Add(dTable.Rows[i].ItemArray);
                             }
                     }
@@ -494,24 +493,24 @@ namespace TravelPlanningAppSusloparov
 
         private void Savebuttonth_Click(object sender, EventArgs e)
         {
-            if (m_dbConn.State != ConnectionState.Open)
+            if (m_dbConn.State != ConnectionState.Open) // если нет соединения - кнопка работает как "создать"
             {
-                SaveFileDialog sfd = new SaveFileDialog();
+                SaveFileDialog sfd = new SaveFileDialog(); // диалог сохранения с заголовком, фильром и расширением
                     {
                         sfd.Title = "Выберите место для сохранения БД";
                         sfd.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*";
                         sfd.DefaultExt = "sqlite";
                     }
-                    if (sfd.ShowDialog() == DialogResult.OK)
+                    if (sfd.ShowDialog() == DialogResult.OK) // если нажата кнопка ОК
                     {
-                        dbFileName = sfd.FileName;
+                        dbFileName = sfd.FileName; // имя файла
                         try
                         {
-                            m_dbConn = new SQLiteConnection("Data Source=" + dbFileName + ";Version=3;");
-                            m_dbConn.Open();
-                            m_sqlCmd.Connection = m_dbConn;
-                            m_sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS TravelItems (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount TEXT)";
-                            m_sqlCmd.ExecuteNonQuery();
+                            m_dbConn = new SQLiteConnection("Data Source=" + dbFileName + ";Version=3;"); // новое соединение SQLite
+                            m_dbConn.Open(); // открыть соедниение
+                            m_sqlCmd.Connection = m_dbConn; // объявление команды для соединения
+                            m_sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS TravelItems (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount TEXT)"; // команда для создания таблицы 
+                            m_sqlCmd.ExecuteNonQuery(); // выполнить команду
                             dbStatusLabel.Text = "БД успешно создана и подключена.";
                             savebuttonth.Text = "Сохранить";
                             return;
@@ -524,13 +523,12 @@ namespace TravelPlanningAppSusloparov
                 }
                 else { return; }
             }
-            else
+            else // если БД подключена
             {
                 DialogResult result = MessageBox.Show("Хотите выбрать иное место сохранения базы данных? (Сохранить как)", "Вопрос", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (result == DialogResult.Yes)
+                if (result == DialogResult.Yes) // если нажата кнопка "Да"
                 {
-                    // Создаем диалог сохранения файла
-                    SaveFileDialog saveFileDialog = new SaveFileDialog();
+                    SaveFileDialog saveFileDialog = new SaveFileDialog(); // диалог сохранения файла
                     {
                         saveFileDialog.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*";
                         saveFileDialog.Title = "Выберите место для сохранения БД";
@@ -539,9 +537,9 @@ namespace TravelPlanningAppSusloparov
                 }
                 try
                     {
-                        m_dbConn.Close();
+                        m_dbConn.Close(); // закрытие соединения и назначение статуса
                         dbStatusLabel.Text = "БД успешно отключена и сохранена.";
-                        savebuttonth.Text = "Создать БД";
+                        savebuttonth.Text = "Создать БД"; // изменение текста на кнопке
                     }
                     catch (Exception ex)
                     {
@@ -553,14 +551,14 @@ namespace TravelPlanningAppSusloparov
 
         private void Cleanallbutton_Click(object sender, EventArgs e)
         {
-            if (m_dbConn.State != ConnectionState.Open)
+            if (m_dbConn.State != ConnectionState.Open) // Если БД не подключена
             {
                 MessageBox.Show("БД не подключена! Создайте или загрузите БД!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             try
             {
-                if (neededdgv.Rows.Count == 0)
+                if (neededdgv.Rows.Count == 0) // если таблица пустая
                 {
                     MessageBox.Show("В таблице нет вещей!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -569,14 +567,14 @@ namespace TravelPlanningAppSusloparov
                 {
                     try
                     {
-                        using (var connection = new SQLiteConnection(m_dbConn))
+                        using (var connection = new SQLiteConnection(m_dbConn)) // новое соединение SQLite
                         {
-                            m_sqlCmd.Connection = m_dbConn;
-                            m_sqlCmd.CommandText = "DELETE FROM TravelItems";
-                            m_sqlCmd.ExecuteNonQuery();
+                            m_sqlCmd.Connection = m_dbConn; // обозначение соединения
+                            m_sqlCmd.CommandText = "DELETE FROM TravelItems"; // команда SQL для удаления всей таблицы
+                            m_sqlCmd.ExecuteNonQuery(); // выполнение командыы
                         }
-                        neededdgv.Rows.Clear();
-                        dbStatusLabel.Text = "База данных успешно очищена.";
+                        neededdgv.Rows.Clear(); // очистка полей dgv
+                        dbStatusLabel.Text = "База данных успешно очищена."; // статус
                     }
                     catch (SQLiteException ex)
                     {
@@ -591,16 +589,16 @@ namespace TravelPlanningAppSusloparov
 
         private void NeededDGV_SelectionChanged(object sender, EventArgs e)
         {
-            DataGridViewSelectedRowCollection t = neededdgv.SelectedRows;
-            if (t.Count > 0)
+            DataGridViewSelectedRowCollection t = neededdgv.SelectedRows; // обозначение выбранной строки
+            if (t.Count > 0) // если есть строки
             {
-                DataGridViewRow row = t[0];
-                dgvid = Convert.ToInt32(row.Cells[0].Value);
-                namethtextBox.Text = Convert.ToString(row.Cells[1].Value).Trim();
-                amountthtextBox.Text = Convert.ToString(row.Cells[2].Value).Trim();
+                DataGridViewRow row = t[0]; // массив строк
+                dgvid = Convert.ToInt32(row.Cells[0].Value); //  назначение значения id выбранной строки переменной dgvid
+                namethtextBox.Text = Convert.ToString(row.Cells[1].Value).Trim(); // вставка в поле названия текста названия
+                amountthtextBox.Text = Convert.ToString(row.Cells[2].Value).Trim(); // вставка в поле количества текста количества
             }
 
         }
     }      
 }
-// добавить комментарии к реализации списка вещей и исправить дипсиковские комменты к реализации 
+// сделать поле с количеством числовым?
