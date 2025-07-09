@@ -55,10 +55,18 @@ namespace TravelPlanningAppSusloparov
 
         private void Karta_Load(object sender, EventArgs e)
         {
-            GMaps.Instance.Mode = AccessMode.ServerAndCache;  // режим кеширования карты
-            string CacheDirectory = Path.Combine(Directory.GetCurrentDirectory(), "cache"); // папка кеширования карты
-            if (!Directory.Exists(CacheDirectory)) Directory.CreateDirectory(CacheDirectory); // если нет папки - создать
-            karta.CacheLocation = CacheDirectory; // назначение папки кеша
+            try
+            {
+                GMaps.Instance.Mode = AccessMode.ServerAndCache;  // режим кеширования карты
+                string CacheDirectory = Path.Combine(Directory.GetCurrentDirectory(), "cache"); // папка кеширования карты
+                if (!Directory.Exists(CacheDirectory)) Directory.CreateDirectory(CacheDirectory); // если нет папки - создать
+                karta.CacheLocation = CacheDirectory; // назначение папки кеша
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                MessageBox.Show("Невозможно создать папку кеша карты! Для загрузки карты будет использоваться только доступ в Интернет");
+                GMaps.Instance.Mode = AccessMode.ServerOnly; // использовать только сервер
+            }
             karta.DragButton = MouseButtons.Left; // лкм для перемещения карты
             karta.MapProvider = GMapProviders.OpenStreetMap; // провайдер карты
             karta.Position = new PointLatLng(DefaultLatitude, DefaultLongitude); // установка позиции карты
