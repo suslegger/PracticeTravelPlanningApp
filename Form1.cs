@@ -405,7 +405,7 @@ namespace TravelPlanningAppSusloparov
                 }
                 else if (neededdgv.SelectedRows.Count == 0) // если строка не выбрана
                 {
-                    MessageBox.Show("Пожалуйста, выберите строку для удаления", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Строка для удаления не выбрана!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 else if ((MessageBox.Show("Вы уверены, что хотите удалить выбранную вещь?", "Подтвердите операцию", MessageBoxButtons.YesNo, MessageBoxIcon.Question)) == DialogResult.Yes)
@@ -436,8 +436,6 @@ namespace TravelPlanningAppSusloparov
         }
         private void Loadbuttonth_Click(object sender, EventArgs e)
         {
-            if (m_dbConn.State != ConnectionState.Open) m_dbConn.Close(); // если есть подключение - отключиться
-            // Создаем диалог открытия файла
             OpenFileDialog openFileDialog = new OpenFileDialog(); // диалог откытия файла с заголовком и фильтром
             {
                 openFileDialog.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*";
@@ -449,6 +447,7 @@ namespace TravelPlanningAppSusloparov
                 try
                 {
                     dbFileName = openFileDialog.FileName; // имя файла
+                    if (m_dbConn.State != ConnectionState.Open) m_dbConn.Close(); // если есть подключение - отключиться
                     m_dbConn = new SQLiteConnection("Data Source=" + dbFileName + ";Version=3;"); // создание соединения
                     m_dbConn.Open(); // открыте соединения
                     savebuttonth.Text = "Сохранить и отключить"; // изменение текста кнопки сохранения
@@ -500,7 +499,7 @@ namespace TravelPlanningAppSusloparov
                             m_sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS TravelItems (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount TEXT)"; // команда для создания таблицы 
                             m_sqlCmd.ExecuteNonQuery(); // выполнить команду
                             dbStatusLabel.Text = "БД успешно создана и подключена.";
-                            savebuttonth.Text = "Сохранить";
+                            savebuttonth.Text = "Сохранить и отключить";
                             return;
                         }
                         catch (SQLiteException ex)
@@ -577,7 +576,7 @@ namespace TravelPlanningAppSusloparov
 
         private void NeededDGV_SelectionChanged(object sender, EventArgs e)
         {
-            DataGridViewSelectedRowCollection t = neededdgv.SelectedRows; // обозначение выбранной строки
+            DataGridViewSelectedRowCollection t = neededdgv.SelectedRows; // коллекция выбранных строк
             if (t.Count > 0) // если есть строки
             {
                 DataGridViewRow row = t[0]; // массив строк

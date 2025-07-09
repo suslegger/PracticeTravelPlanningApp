@@ -266,7 +266,7 @@
             // 
             this.timecheckbox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.timecheckbox.AutoSize = true;
-            this.timecheckbox.Location = new System.Drawing.Point(346, 180);
+            this.timecheckbox.Location = new System.Drawing.Point(358, 180);
             this.timecheckbox.Margin = new System.Windows.Forms.Padding(2);
             this.timecheckbox.Name = "timecheckbox";
             this.timecheckbox.Size = new System.Drawing.Size(171, 17);
