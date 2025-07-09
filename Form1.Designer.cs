@@ -41,7 +41,6 @@
             this.zoomplus = new System.Windows.Forms.Button();
             this.etalabel = new System.Windows.Forms.Label();
             this.distancelabel = new System.Windows.Forms.Label();
-            this.pedestriancheckBox = new System.Windows.Forms.CheckBox();
             this.timecheckbox = new System.Windows.Forms.CheckBox();
             this.resetpointbutton = new System.Windows.Forms.Button();
             this.getrouteandtime = new System.Windows.Forms.Button();
@@ -148,7 +147,6 @@
             this.tabPage1.Controls.Add(this.zoomplus);
             this.tabPage1.Controls.Add(this.etalabel);
             this.tabPage1.Controls.Add(this.distancelabel);
-            this.tabPage1.Controls.Add(this.pedestriancheckBox);
             this.tabPage1.Controls.Add(this.timecheckbox);
             this.tabPage1.Controls.Add(this.resetpointbutton);
             this.tabPage1.Controls.Add(this.getrouteandtime);
@@ -263,19 +261,6 @@
             this.distancelabel.Size = new System.Drawing.Size(146, 13);
             this.distancelabel.TabIndex = 13;
             this.distancelabel.Text = "Расстояние: не рассчитано";
-            // 
-            // pedestriancheckBox
-            // 
-            this.pedestriancheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pedestriancheckBox.AutoSize = true;
-            this.pedestriancheckBox.Location = new System.Drawing.Point(523, 180);
-            this.pedestriancheckBox.Margin = new System.Windows.Forms.Padding(2);
-            this.pedestriancheckBox.Name = "pedestriancheckBox";
-            this.pedestriancheckBox.Size = new System.Drawing.Size(160, 17);
-            this.pedestriancheckBox.TabIndex = 12;
-            this.pedestriancheckBox.Text = "Навигация для пешеходов";
-            this.pedestriancheckBox.UseVisualStyleBackColor = true;
-            this.pedestriancheckBox.CheckedChanged += new System.EventHandler(this.PedestriancheckBox_CheckedChanged);
             // 
             // timecheckbox
             // 
@@ -581,7 +566,6 @@
         private System.Windows.Forms.Label speedlabel;
         private System.Windows.Forms.Button getrouteandtime;
         private System.Windows.Forms.Button resetpointbutton;
-        private System.Windows.Forms.CheckBox pedestriancheckBox;
         private System.Windows.Forms.CheckBox timecheckbox;
         private System.Windows.Forms.Label etalabel;
         private System.Windows.Forms.Label distancelabel;

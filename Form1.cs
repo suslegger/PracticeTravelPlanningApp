@@ -31,7 +31,6 @@ namespace TravelPlanningAppSusloparov
         public GMapOverlay _markerOverlay = new GMapOverlay("markers"); // оверлей с маркерами
         public GMapOverlay _routesOverlay = new GMapOverlay("_routesOverlay"); // оверлей для маршрутов
         private int _countPoints = 0; // счетчик маркеров
-        private bool _isPedestrian = false; // пеший маршрут
         private GMapMarker _currentMarker; // маркер
         private const double DefaultLatitude = 55.742; // стандартная широта
         private const double DefaultLongitude = 37.613; // стандартная долгота
@@ -207,7 +206,7 @@ namespace TravelPlanningAppSusloparov
                 _points[0],
                 _points[1],
                 false,
-                _isPedestrian,
+                false,
                 (int)karta.Zoom);
             if (route == null) // если маршрут не найден - вывести ошибку
             {
@@ -278,20 +277,6 @@ namespace TravelPlanningAppSusloparov
                 speedlabel.Visible = false;
                 getrouteandtime.Text = "Рассчитать расстояние";
             }
-        }
-
-        private void PedestriancheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            if (pedestriancheckBox.Checked == true) // если поставлена галочка "пеший маршрут"
-            {
-                _isPedestrian = true; // изменить переменную пешехода (истина) и среднюю скорость
-                if (timecheckbox.Checked == true) speedtextBox.Text = "5,5";
-            }
-            else {
-                _isPedestrian = false; // изменить переменную пешехода (ложь = автомобиль) и среднюю скорость
-                if (timecheckbox.Checked == true) speedtextBox.Text = "30";
-            }
-
         }
 
         private void Karta_MouseDown(object sender, MouseEventArgs e) // при нажатии кнопкой мыши на карту
