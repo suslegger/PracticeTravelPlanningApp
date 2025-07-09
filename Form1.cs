@@ -64,7 +64,7 @@ namespace TravelPlanningAppSusloparov
             }
             catch (System.IO.FileNotFoundException)
             {
-                MessageBox.Show("Невозможно создать папку кеша карты! Для загрузки карты будет использоваться только доступ в Интернет", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Невозможно создать/использовать папку кеша карты! Для загрузки карты будет использоваться только доступ в Интернет", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 GMaps.Instance.Mode = AccessMode.ServerOnly; // использовать только сервер
             }
             karta.DragButton = MouseButtons.Left; // лкм для перемещения карты
