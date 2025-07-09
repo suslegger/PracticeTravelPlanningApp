@@ -55,31 +55,22 @@ namespace TravelPlanningAppSusloparov
 
         private void Karta_Load(object sender, EventArgs e)
         {
-            try
-            {
-                GMaps.Instance.Mode = AccessMode.ServerAndCache;  // режим кеширования карты
-                string CacheDirectory = Path.Combine(Directory.GetCurrentDirectory(), "cache"); // папка кеширования карты
-                if (!Directory.Exists(CacheDirectory)) Directory.CreateDirectory(CacheDirectory); // если нет папки - создать
-                karta.CacheLocation = CacheDirectory; // назначение папки кеша
-                karta.DragButton = MouseButtons.Left; // лкм для перемещения карты
-                karta.MapProvider = GMapProviders.OpenStreetMap; // провайдер карты
-                karta.Position = new PointLatLng(DefaultLatitude, DefaultLongitude); // установка позиции карты
-                karta.MinZoom = MinZoom; // минимальное увеличение
-                karta.MaxZoom = MaxZoom; // максимальное увеличение
-                karta.Zoom = DefaultZoom; // увеличение по умолчанию
-                karta.Overlays.Add(_selmarkOverlay); // наложение маркера выбора
-                karta.Overlays.Add(_markerOverlay); // наложение маркеров местоположения
-                karta.Overlays.Add(_routesOverlay); // наложение маршрута
-                _currentMarker = new GMarkerGoogle(karta.Position, GMarkerGoogleType.arrow);
-                { _currentMarker.IsVisible = false; } // отключить видимость по умолчанию
-                _selmarkOverlay.Markers.Add(_currentMarker); // добавление маркера
-                karta.ShowCenter = false; // убрать центровой маркер
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            
+            GMaps.Instance.Mode = AccessMode.ServerAndCache;  // режим кеширования карты
+            string CacheDirectory = Path.Combine(Directory.GetCurrentDirectory(), "cache"); // папка кеширования карты
+            if (!Directory.Exists(CacheDirectory)) Directory.CreateDirectory(CacheDirectory); // если нет папки - создать
+            karta.CacheLocation = CacheDirectory; // назначение папки кеша
+            karta.DragButton = MouseButtons.Left; // лкм для перемещения карты
+            karta.MapProvider = GMapProviders.OpenStreetMap; // провайдер карты
+            karta.Position = new PointLatLng(DefaultLatitude, DefaultLongitude); // установка позиции карты
+            karta.MinZoom = MinZoom; // минимальное увеличение
+            karta.MaxZoom = MaxZoom; // максимальное увеличение
+            karta.Zoom = DefaultZoom; // увеличение по умолчанию
+            karta.Overlays.Add(_selmarkOverlay); // наложение маркера выбора
+            karta.Overlays.Add(_markerOverlay); // наложение маркеров местоположения
+            karta.Overlays.Add(_routesOverlay); // наложение маршрута
+            _currentMarker = new GMarkerGoogle(karta.Position, GMarkerGoogleType.arrow); { _currentMarker.IsVisible = false; } // отключить видимость по умолчанию
+            _selmarkOverlay.Markers.Add(_currentMarker); // добавление маркера
+            karta.ShowCenter = false; // убрать центровой маркер
         }
 
 
