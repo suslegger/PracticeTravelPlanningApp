@@ -181,8 +181,7 @@
             // 
             // exitbuttonmap
             // 
-            this.exitbuttonmap.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.exitbuttonmap.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.exitbuttonmap.Location = new System.Drawing.Point(578, 367);
             this.exitbuttonmap.Margin = new System.Windows.Forms.Padding(2);
             this.exitbuttonmap.Name = "exitbuttonmap";
@@ -382,13 +381,15 @@
             // 
             // dbStatusLabel
             // 
+            this.dbStatusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dbStatusLabel.AutoSize = true;
             this.dbStatusLabel.Location = new System.Drawing.Point(13, 421);
             this.dbStatusLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.dbStatusLabel.Name = "dbStatusLabel";
-            this.dbStatusLabel.Size = new System.Drawing.Size(151, 13);
+            this.dbStatusLabel.Size = new System.Drawing.Size(386, 13);
             this.dbStatusLabel.TabIndex = 30;
-            this.dbStatusLabel.Text = "База данных не подключена";
+            this.dbStatusLabel.Text = "База данных не подключена. Для создания БД нажмите кнопку \'Создать\'.";
             // 
             // cleanallbutton
             // 

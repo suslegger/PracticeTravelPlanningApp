@@ -440,7 +440,6 @@ namespace TravelPlanningAppSusloparov
             neededdgv.Columns["id"].Visible = false; // убрать видимость строки с ИД
             m_dbConn = new SQLiteConnection(); // инициализация соединения
             m_sqlCmd = new SQLiteCommand(); // инициализация команды
-            dbStatusLabel.Text = "База данных не подключена. Для создания БД нажмите кнопку 'Создать'."; // статус
         }
         private void Loadbuttonth_Click(object sender, EventArgs e)
         {
