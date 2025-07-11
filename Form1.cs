@@ -64,7 +64,7 @@ namespace TravelPlanningAppSusloparov
             }
             catch (System.IO.FileNotFoundException)
             {
-                MessageBox.Show("Невозможно создать/использовать папку кеша карты! Для загрузки карты будет использоваться только доступ в Интернет", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowErrorMessage("Невозможно создать/использовать папку кеша карты! Для загрузки карты будет использоваться только доступ в Интернет");
                 GMaps.Instance.Mode = AccessMode.ServerOnly; // использовать только сервер
             }
             karta.DragButton = MouseButtons.Left; // лкм для перемещения карты
@@ -81,17 +81,21 @@ namespace TravelPlanningAppSusloparov
             karta.ShowCenter = false; // убрать центровой маркер
         }
 
+        private void ShowErrorMessage(string message) 
+        {
+            MessageBox.Show(message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
 
         private void Addpointbutton_Click(object sender, EventArgs e)
         {
             if (_countPoints >= 2) // если точек 2 или более - не давать создать ещё точки
             {
-                MessageBox.Show("Невозможно добавить более чем 2 точки!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowErrorMessage("Невозможно добавить более чем 2 точки!");
                 return;
             }
             if (_currentMarker.IsVisible == false && usesearchcb.Checked == false) // если точка не выбрана в режиме точек
             {
-                MessageBox.Show("Не выбрана точка!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowErrorMessage("Не выбрана точка!");
                 return;
             }
             bool isfailed = false; // счетчик ошибки для поиска
@@ -104,7 +108,7 @@ namespace TravelPlanningAppSusloparov
                     karta.GetPositionByKeywords(nametextbox.Text, out markerpos); // попытка поиска
                     if (markerpos.ToString() == "{Lat=0, Lng=0}")
                     { // если место не найдено, отобразить окно и включить счётчик ошибок
-                        MessageBox.Show("Не удалось найти данное место", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        ShowErrorMessage("Не удалось найти данное место");
                         isfailed = true;
                     }
                     else // если найдено
@@ -140,7 +144,7 @@ namespace TravelPlanningAppSusloparov
                     karta.GetPositionByKeywords(nametextbox.Text, out markerpos); // поиск местоположения по словам
                     if (markerpos.ToString() == "{Lat=0, Lng=0}") // если не удалось найти - показать окно ошибки и изменить счётчик ошибок
                     {
-                        MessageBox.Show("Не удалось найти данное место", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        ShowErrorMessage("Не удалось найти данное место");
                         isfailed = true;
                     }
                     else // если удалось - занести расположение в переменную, создать маркер и центровать карту по маркеру
@@ -190,7 +194,7 @@ namespace TravelPlanningAppSusloparov
             }
             else
             {
-                MessageBox.Show("Не добавлены точки!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowErrorMessage("Не добавлены точки!");
                 return;
             }
         }
@@ -206,7 +210,7 @@ namespace TravelPlanningAppSusloparov
         {
             if (_countPoints != 2) // если точек меньше 2 - вывести ошибку
             {
-                MessageBox.Show("Не добавлены все точки!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowErrorMessage("Не добавлены все точки!");
                 return;
             }
             statuslabel.Text = "Расчет маршрута..."; // изменение статуса
@@ -218,7 +222,7 @@ namespace TravelPlanningAppSusloparov
                 (int)karta.Zoom);
             if (route == null) // если маршрут не найден - вывести ошибку
             {
-                MessageBox.Show("Невозможно вычислить маршрут! Проверьте интернет-соединение", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); ;
+                ShowErrorMessage("Невозможно вычислить маршрут! Проверьте интернет-соединение"); ;
                 return;
             }
             var r = new GMapRoute(route.Points, "Marshrut") // создание маршрута и использование красного цвета для маршрута
@@ -264,7 +268,7 @@ namespace TravelPlanningAppSusloparov
                 }
                 catch (Exception ex) // если ошибка в функции
                 {
-                    MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); // вывести сообщение при ошибке
+                    ShowErrorMessage(ex.Message); // вывести сообщение при ошибке
                 }
             }
         }
@@ -357,12 +361,12 @@ namespace TravelPlanningAppSusloparov
         {
             if (m_dbConn.State != ConnectionState.Open) // если соединение закрыто (нет подключение к БД)
             {
-                MessageBox.Show("БД не подключена! Создайте или загрузите БД!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowErrorMessage("БД не подключена! Создайте или загрузите БД!");
                 return;
             }
             else if (namethtextBox.Text == String.Empty || amountthtextBox.Text == String.Empty) // если поля пустые
             {
-                MessageBox.Show("Не было указано название вещи и/или количество!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowErrorMessage("Не было указано название вещи и/или количество!");
                 return;
             }
                 else
@@ -393,7 +397,7 @@ namespace TravelPlanningAppSusloparov
                         }
                         catch (SQLiteException ex) // при ошибке вывести сообщение об ошибке
                         {
-                            MessageBox.Show("Ошибка подключения к БД: " + ex.Message);
+                             ShowErrorMessage("Ошибка подключения к БД: " + ex.Message);
                         }
         }
 
@@ -401,19 +405,19 @@ namespace TravelPlanningAppSusloparov
         {
             if (m_dbConn.State != ConnectionState.Open) // если соединение закрыто (нет подключение к БД)
             {
-                MessageBox.Show("БД не подключена! Создайте или загрузите БД!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowErrorMessage("БД не подключена! Создайте или загрузите БД!");
                 return;
             }
             try
             {
                 if (neededdgv.Rows.Count == 0) // если таблица пустая
                 {
-                    MessageBox.Show("В таблице нет вещей!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowErrorMessage("В таблице нет вещей!");
                     return;
                 }
                 else if (neededdgv.SelectedRows.Count == 0) // если строка не выбрана
                 {
-                    MessageBox.Show("Строка для удаления не выбрана!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowErrorMessage("Строка для удаления не выбрана!");
                     return;
                 }
                 else if ((MessageBox.Show("Вы уверены, что хотите удалить выбранную вещь?", "Подтвердите операцию", MessageBoxButtons.YesNo, MessageBoxIcon.Question)) == DialogResult.Yes)
@@ -429,7 +433,7 @@ namespace TravelPlanningAppSusloparov
                     dbStatusLabel.Text = "Вещь удалена из базы данных.";
                 }
             }
-            catch (Exception ex) { MessageBox.Show("Ошибка удаления строки! " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception ex) { ShowErrorMessage("Ошибка удаления строки! " + ex.Message); }
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -475,12 +479,12 @@ namespace TravelPlanningAppSusloparov
                     catch (SQLiteException ex)
                     {
                         dbStatusLabel.Text = "Ошибка подключения к БД!";
-                        MessageBox.Show("Ошибка: " + ex.Message);
+                        ShowErrorMessage("Ошибка: " + ex.Message);
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Ошибка: " + ex.Message);
+                    ShowErrorMessage("Ошибка: " + ex.Message);
                 }
             }
         }
@@ -512,7 +516,7 @@ namespace TravelPlanningAppSusloparov
                         catch (SQLiteException ex)
                         {
                             dbStatusLabel.Text = "Ошибка подключеня к БД!";
-                            MessageBox.Show("Ошибка подключения к БД: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            ShowErrorMessage("Ошибка подключения к БД: " + ex.Message);
                         }
                 }
                 else { return; }
@@ -537,8 +541,7 @@ namespace TravelPlanningAppSusloparov
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}", "Ошибка",
-                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowErrorMessage($"Ошибка при сохранении файла: {ex.Message}");
                     }
                 }
             }
@@ -547,14 +550,14 @@ namespace TravelPlanningAppSusloparov
         {
             if (m_dbConn.State != ConnectionState.Open) // Если БД не подключена
             {
-                MessageBox.Show("БД не подключена! Создайте или загрузите БД!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowErrorMessage("БД не подключена! Создайте или загрузите БД!");
                 return;
             }
             try
             {
                 if (neededdgv.Rows.Count == 0) // если таблица пустая
                 {
-                    MessageBox.Show("В таблице нет вещей!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowErrorMessage("В таблице нет вещей!");
                     return;
                 }
                 else if (MessageBox.Show("Вы уверены, что хотите очистить список вещей?", "Подтвердите операцию", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -577,7 +580,7 @@ namespace TravelPlanningAppSusloparov
                     }
                 }
             }
-            catch { MessageBox.Show("Ошибка очистки списка!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch { ShowErrorMessage("Ошибка очистки списка!"); }
 
         }
 
