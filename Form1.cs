@@ -114,7 +114,6 @@ namespace TravelPlanningAppSusloparov
                 if (_countPoints == 1)
                 {
                     _markerOverlay.Markers.Add(m1);
-                    if (nametextbox.Text == String.Empty) _pointnames.Add("пункт А");
                     m1.ToolTipText = "Начало: " + _pointnames[0];
                     m1.ToolTipMode = MarkerTooltipMode.Always;
                     statuslabel.Text = "Выбран только исходный пункт!";
