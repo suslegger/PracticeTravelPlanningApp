@@ -79,12 +79,7 @@ namespace TravelPlanningAppSusloparov
                 {
                     karta.GetPositionByKeywords(nametextbox.Text, out markerpos); // попытка поиска
                     if (markerpos.ToString() == "{Lat=0, Lng=0}") { ShowErrorMessage("Не удалось найти данное место"); isfailed = true; } // если место не найдено, отобразить окно и включить счётчик ошибок
-                    else /* если найдено */
-                    {
-                        karta.Position = markerpos; // расположить карту в этом месте
-                        m1 = new GMarkerGoogle(markerpos, GMarkerGoogleType.green_dot); // добавление маркера
-                        if (karta.Zoom < 12) karta.Zoom = 12; /* увеличить карту на этой точке */
-                    }
+                    else { karta.Position = markerpos; m1 = new GMarkerGoogle(markerpos, GMarkerGoogleType.green_dot); if (karta.Zoom < 12) karta.Zoom = 12; } // если найдено - расположить карту в этом месте, добавить маркер и увеличить карту на этой точке
                 }
                 else // если местоположение выбиралось по нажатию на карту
                 {
@@ -93,17 +88,6 @@ namespace TravelPlanningAppSusloparov
                     karta.Position = markerpos; // расположить карту в этом месте
                     if (karta.Zoom < 12) karta.Zoom = 12; // увеличить карту на этой точке
                 }
-                if (isfailed == false) // если нет ошибок
-                {
-                    _points.Add(markerpos); // добавить точку в список
-                    _countPoints++; // увеличить счётчик точек
-                    _markerOverlay.Markers.Add(m1); // добавление пиктограммы на карту
-                    if (nametextbox.Text != String.Empty) _pointnames.Add(nametextbox.Text); // добавление названия
-                    else _pointnames.Add("пункт А"); // если нет - использовать стандартное
-                    m1.ToolTipText = "Начало: " + _pointnames[0]; // подсказка маркера
-                    m1.ToolTipMode = MarkerTooltipMode.Always; // режим подсказки
-                    statuslabel.Text = "Выбран только исходный пункт!"; // изменение текста статуса
-                }
             }
             else // если есть одна точка
             {
@@ -111,31 +95,38 @@ namespace TravelPlanningAppSusloparov
                 {
                     karta.GetPositionByKeywords(nametextbox.Text, out markerpos); // поиск местоположения по словам
                     if (markerpos.ToString() == "{Lat=0, Lng=0}") { ShowErrorMessage("Не удалось найти данное место"); isfailed = true; } // если не удалось найти - показать окно ошибки и изменить счётчик ошибок
-                    else // если удалось - занести расположение в переменную, создать маркер и центровать карту по маркеру
-                    {
-                        karta.Position = markerpos;
-                        m2 = new GMarkerGoogle(new PointLatLng(karta.Position.Lat, karta.Position.Lng), GMarkerGoogleType.red_dot);
-                        karta.ZoomAndCenterMarkers("markers");
-                    }
+                    else { karta.Position = markerpos; m2 = new GMarkerGoogle(markerpos, GMarkerGoogleType.red_dot); karta.ZoomAndCenterMarkers("markers"); } // если удалось - занести расположение в переменную, создать маркер и центровать карту по маркеру
                 }
                 else // если местоположение выбиралось по нажатию на карту
                 {
                     markerpos = new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng); // задание маркера по выбранным координатам
                     m2 = new GMarkerGoogle(markerpos, GMarkerGoogleType.red_dot); // добавление маркера в переменную
-                    karta.ZoomAndCenterMarkers("markers"); // центрирование карты по маркеру
+                    karta.ZoomAndCenterMarkers("markers"); // центрирование карты по маркерам
                 }
-                if (isfailed == false) // если счётчик ошибок не сработал
+            }
+            if (isfailed == false) // если счётчик ошибок не сработал
+            {
+                _countPoints++;
+                _points.Add(markerpos);
+                if (nametextbox.Text != String.Empty) _pointnames.Add(nametextbox.Text); // добавление название макера
+                else if (_countPoints == 1) _pointnames.Add("пункт А");
+                else _pointnames.Add("пункт B");
+                if (_countPoints == 1)
                 {
-                    _points.Add(markerpos); // добавить точку в список точек
-                    _markerOverlay.Markers.Add(m2); // добавление маркера на наложение
-                    if (nametextbox.Text != String.Empty) _pointnames.Add(nametextbox.Text); // добавление название макера
-                    else _pointnames.Add("пункт B"); // или использование стандартного
-                    m2.ToolTipText = "Конец: " + _pointnames[1]; // подсказка маркера
-                    m2.ToolTipMode = MarkerTooltipMode.Always; // режим подсказки маркера
-                    _currentMarker.IsVisible = false; // скрытие маркера выбора
-                    _countPoints++; // добавление счётчика
-                    statuslabel.Text = "Можно расчитывать расстояние"; // изменение статуса
-                    howto2.Visible = false; // скрытие подсказки по выбору маркера
+                    _markerOverlay.Markers.Add(m1);
+                    if (nametextbox.Text == String.Empty) _pointnames.Add("пункт А");
+                    m1.ToolTipText = "Начало: " + _pointnames[0];
+                    m1.ToolTipMode = MarkerTooltipMode.Always;
+                    statuslabel.Text = "Выбран только исходный пункт!";
+                }
+                else
+                {
+                    _markerOverlay.Markers.Add(m2);
+                    m2.ToolTipText = "Конец: " + _pointnames[1];
+                    m2.ToolTipMode = MarkerTooltipMode.Always;
+                    _currentMarker.IsVisible = false;
+                    statuslabel.Text = "Можно расчитывать расстояние";
+                    howto2.Visible = false;
                 }
             }
         }
@@ -196,18 +187,9 @@ namespace TravelPlanningAppSusloparov
         }
         private void Timecheckbox_CheckedChanged(object sender, EventArgs e)
         {
-            if (timecheckbox.Checked == true) // если поставлена галочка "рассчитать время"
-            {
-                speedtextBox.Visible = true; // показать поле для ввода скорости
-                speedlabel.Visible = true; // показать пометку для ввода скорости
-                getrouteandtime.Text = "Рассчитать расстояние и время"; // изменить текст кнопки
-            }
-            else // если убрана - вернуть все назад
-            {
-                speedtextBox.Visible = false;
-                speedlabel.Visible = false;
-                getrouteandtime.Text = "Рассчитать расстояние";
-            }
+            // если поставлена галочка "рассчитать время" показать поле для ввода скорости, показать пометку для ввода скорости и изменить текст кнопки
+            if (timecheckbox.Checked == true) { speedtextBox.Visible = true; speedlabel.Visible = true; getrouteandtime.Text = "Рассчитать расстояние и время"; } 
+            else { speedtextBox.Visible = false; speedlabel.Visible = false; getrouteandtime.Text = "Рассчитать расстояние"; } // если убрана - вернуть все назад
         }
         private void Karta_MouseDown(object sender, MouseEventArgs e) // при нажатии кнопкой мыши на карту
         {
@@ -253,9 +235,7 @@ namespace TravelPlanningAppSusloparov
             else try
                 {
                     DataTable dTable = new DataTable(); // создание таблицы данных
-                    string sqlQuery = @"
-                INSERT INTO TravelItems (name, amount)
-                VALUES (@name, @amount)"; // запрос SQL на добавление в базу строки
+                    string sqlQuery = @"INSERT INTO TravelItems (name, amount) VALUES (@name, @amount)"; // запрос SQL на добавление в базу строки
                     using (var command = new SQLiteCommand(sqlQuery, m_dbConn)) // новая команда SQL (с запросом и параметрами подключения)
                     {
                         command.Parameters.AddWithValue("@name", namethtextBox.Text); // параметр в запросе @name = поле nametxhtextbox.text
@@ -310,12 +290,8 @@ namespace TravelPlanningAppSusloparov
         }
         private void Loadbuttonth_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog(); // диалог откытия файла с заголовком и фильтром
-            {
-                openFileDialog.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*";
-                openFileDialog.Title = "Загрузить базу данных";
-            }
-
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            { openFileDialog.Title = "Загрузить базу данных"; openFileDialog.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*"; } // диалог откытия файла с заголовком и фильтром
             if (openFileDialog.ShowDialog() == DialogResult.OK) // если нажата клавиша ОК
             {
                 try
@@ -332,12 +308,7 @@ namespace TravelPlanningAppSusloparov
                         string sqlQuery = "SELECT * FROM TravelItems"; // запрос SQL на выборку данных
                         SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn); // инициализация адаптера sqlite
                         adapter.Fill(dTable); // заполнение адаптера данными
-                        if (dTable.Rows.Count > 0) // если таблицы не пустая
-                        {
-                            neededdgv.Rows.Clear(); // очистить dgv
-                            for (int i = 0; i < dTable.Rows.Count; i++) // цикл заполнения dgv данными из dtable
-                                neededdgv.Rows.Add(dTable.Rows[i].ItemArray);
-                        }
+                        if (dTable.Rows.Count > 0) /* если таблица не пустая */ { neededdgv.Rows.Clear(); /* очистить dgv */ for (int i = 0; i < dTable.Rows.Count; i++) neededdgv.Rows.Add(dTable.Rows[i].ItemArray); /* цикл заполнения dgv данными из dtable */  }
                     }
                     catch (SQLiteException ex) { dbStatusLabel.Text = "Ошибка подключения к БД!"; ShowErrorMessage("Ошибка: " + ex.Message); }
                 }
@@ -348,12 +319,8 @@ namespace TravelPlanningAppSusloparov
         {
             if (m_dbConn.State != ConnectionState.Open) // если нет соединения - кнопка работает как "создать"
             {
-                SaveFileDialog sfd = new SaveFileDialog(); // диалог сохранения с заголовком, фильром и расширением
-                {
-                    sfd.Title = "Выберите место для сохранения БД";
-                    sfd.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*";
-                    sfd.DefaultExt = "sqlite";
-                }
+                SaveFileDialog sfd = new SaveFileDialog();
+                { sfd.Title = "Выберите место для сохранения БД"; sfd.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*"; sfd.DefaultExt = "sqlite"; } // диалог сохранения с заголовком, фильром и расширением
                 if (sfd.ShowDialog() == DialogResult.OK) // если нажата кнопка ОК
                 {
                     dbFileName = sfd.FileName; // имя файла
