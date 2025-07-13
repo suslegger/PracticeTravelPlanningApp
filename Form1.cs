@@ -3,23 +3,12 @@ using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Data.Common;
 using System.Data.SQLite;
-using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml.Linq;
-using static GMap.NET.Entity.OpenStreetMapRouteEntity;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace TravelPlanningAppSusloparov
 {
@@ -70,7 +59,8 @@ namespace TravelPlanningAppSusloparov
             karta.Overlays.Add(_selmarkOverlay); // наложение маркера выбора
             karta.Overlays.Add(_markerOverlay); // наложение маркеров местоположения
             karta.Overlays.Add(_routesOverlay); // наложение маршрута
-            _currentMarker = new GMarkerGoogle(karta.Position, GMarkerGoogleType.arrow); { _currentMarker.IsVisible = false; } // отключить видимость по умолчанию
+            _currentMarker = new GMarkerGoogle(karta.Position, GMarkerGoogleType.arrow);
+            { _currentMarker.IsVisible = false; } // отключить видимость по умолчанию
             _selmarkOverlay.Markers.Add(_currentMarker); // добавление маркера
             karta.ShowCenter = false; // убрать центровой маркер
         }
@@ -79,17 +69,23 @@ namespace TravelPlanningAppSusloparov
         private void Addpointbutton_Click(object sender, EventArgs e)
         {
             if (_countPoints >= 2) { ShowErrorMessage("Невозможно добавить более чем 2 точки!"); return; } // если точек 2 или более - не давать создать ещё точки
-            if (_currentMarker.IsVisible == false && usesearchcb.Checked == false) {ShowErrorMessage("Не выбрана точка!"); return; } // если точка не выбрана в режиме точек
+            if (_currentMarker.IsVisible == false && usesearchcb.Checked == false) { ShowErrorMessage("Не выбрана точка!"); return; } // если точка не выбрана в режиме точек
             bool isfailed = false; // счетчик ошибки для поиска
             GMapMarker m1 = null, m2 = null; // инициализация точек
             PointLatLng markerpos; // инициализация местоположения маркера
             if (_countPoints == 0) // если нет точек
             {
-                if (usesearchcb.Checked == true) /* если используется поиск (установлена галочка) */ { karta.GetPositionByKeywords(nametextbox.Text, out markerpos); // попытка поиска
+                if (usesearchcb.Checked == true) /* если используется поиск (установлена галочка) */
+                {
+                    karta.GetPositionByKeywords(nametextbox.Text, out markerpos); // попытка поиска
                     if (markerpos.ToString() == "{Lat=0, Lng=0}") { ShowErrorMessage("Не удалось найти данное место"); isfailed = true; } // если место не найдено, отобразить окно и включить счётчик ошибок
-                    else /* если найдено */ { karta.Position = markerpos; // расположить карту в этом месте
-                                              m1 = new GMarkerGoogle(markerpos, GMarkerGoogleType.green_dot); // добавление маркера
-                                              if (karta.Zoom < 12) karta.Zoom = 12; /* увеличить карту на этой точке */ }  }
+                    else /* если найдено */
+                    {
+                        karta.Position = markerpos; // расположить карту в этом месте
+                        m1 = new GMarkerGoogle(markerpos, GMarkerGoogleType.green_dot); // добавление маркера
+                        if (karta.Zoom < 12) karta.Zoom = 12; /* увеличить карту на этой точке */
+                    }
+                }
                 else // если местоположение выбиралось по нажатию на карту
                 {
                     markerpos = new PointLatLng(_currentMarker.Position.Lat, _currentMarker.Position.Lng); // задание маркера по выбранным координатам
@@ -147,17 +143,17 @@ namespace TravelPlanningAppSusloparov
         {
             if (_countPoints != 0)
             {
-            _points.Clear(); // очистить список точек
-            _pointnames.Clear(); // очистить список названий точек
-            _currentMarker.IsVisible = false; // убрать видимость маркера выбора
-            statuslabel.Text = "Пункты не выбраны!"; // изменить статус
-            _markerOverlay.Clear(); // очистить наложение маркеров
-            karta.Refresh(); // обновить карту
-            _countPoints = 0; // сбросить счётчик точек и сообщения
-            distancelabel.Text = "Расстояние: не рассчитано"; // текст расстояния
-            etalabel.Text = "Время в пути: не рассчитано"; // текст времени в пути
-            _routesOverlay.Clear(); // очистить наложение маршрутов
-            howto2.Visible = true; // показать подсказку, как выбрать пункт
+                _points.Clear(); // очистить список точек
+                _pointnames.Clear(); // очистить список названий точек
+                _currentMarker.IsVisible = false; // убрать видимость маркера выбора
+                statuslabel.Text = "Пункты не выбраны!"; // изменить статус
+                _markerOverlay.Clear(); // очистить наложение маркеров
+                karta.Refresh(); // обновить карту
+                _countPoints = 0; // сбросить счётчик точек и сообщения
+                distancelabel.Text = "Расстояние: не рассчитано"; // текст расстояния
+                etalabel.Text = "Время в пути: не рассчитано"; // текст времени в пути
+                _routesOverlay.Clear(); // очистить наложение маршрутов
+                howto2.Visible = true; // показать подсказку, как выбрать пункт
             }
             else { ShowErrorMessage("Не добавлены точки!"); return; }
         }
@@ -248,14 +244,14 @@ namespace TravelPlanningAppSusloparov
                 addpointbutton.Text = "Выбрать пункт";
             }
         }
-        private void Exitbutton_Click(object sender, EventArgs e) {  this.Close(); } // выйти из программы
+        private void Exitbutton_Click(object sender, EventArgs e) { this.Close(); } // выйти из программы
         // список необходимых предметов
         private void Addbuttonth_Click(object sender, EventArgs e)
         {
             if (m_dbConn.State != ConnectionState.Open) /* если соединение закрыто (нет подключение к БД) */ { ShowErrorMessage("БД не подключена! Создайте или загрузите БД!"); return; }
             else if (namethtextBox.Text == String.Empty || amountthtextBox.Text == String.Empty) /* если поля пустые */ { ShowErrorMessage("Не было указано название вещи и/или количество!"); return; }
             else try
-            {
+                {
                     DataTable dTable = new DataTable(); // создание таблицы данных
                     string sqlQuery = @"
                 INSERT INTO TravelItems (name, amount)
@@ -278,8 +274,8 @@ namespace TravelPlanningAppSusloparov
                     namethtextBox.Text = ""; // сделать поля названия и количества пустыми
                     amountthtextBox.Text = "";
                     dbStatusLabel.Text = "Вещь добавлена в базу данных."; // изменить статус
-            }
-            catch (SQLiteException ex) { ShowErrorMessage("Ошибка подключения к БД: " + ex.Message); } // при ошибке вывести сообщение об ошибке
+                }
+                catch (SQLiteException ex) { ShowErrorMessage("Ошибка подключения к БД: " + ex.Message); } // при ошибке вывести сообщение об ошибке
         }
         private void Rembuttonth_Click(object sender, EventArgs e)
         {
@@ -353,26 +349,26 @@ namespace TravelPlanningAppSusloparov
             if (m_dbConn.State != ConnectionState.Open) // если нет соединения - кнопка работает как "создать"
             {
                 SaveFileDialog sfd = new SaveFileDialog(); // диалог сохранения с заголовком, фильром и расширением
+                {
+                    sfd.Title = "Выберите место для сохранения БД";
+                    sfd.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*";
+                    sfd.DefaultExt = "sqlite";
+                }
+                if (sfd.ShowDialog() == DialogResult.OK) // если нажата кнопка ОК
+                {
+                    dbFileName = sfd.FileName; // имя файла
+                    try
                     {
-                        sfd.Title = "Выберите место для сохранения БД";
-                        sfd.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*";
-                        sfd.DefaultExt = "sqlite";
+                        m_dbConn = new SQLiteConnection("Data Source=" + dbFileName + ";Version=3;"); // новое соединение SQLite
+                        m_dbConn.Open(); // открыть соедниение
+                        m_sqlCmd.Connection = m_dbConn; // объявление команды для соединения
+                        m_sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS TravelItems (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount TEXT)"; // команда для создания таблицы 
+                        m_sqlCmd.ExecuteNonQuery(); // выполнить команду
+                        dbStatusLabel.Text = "БД успешно создана и подключена.";
+                        savebuttonth.Text = "Сохранить и отключить";
+                        return;
                     }
-                    if (sfd.ShowDialog() == DialogResult.OK) // если нажата кнопка ОК
-                    {
-                        dbFileName = sfd.FileName; // имя файла
-                        try
-                        {
-                            m_dbConn = new SQLiteConnection("Data Source=" + dbFileName + ";Version=3;"); // новое соединение SQLite
-                            m_dbConn.Open(); // открыть соедниение
-                            m_sqlCmd.Connection = m_dbConn; // объявление команды для соединения
-                            m_sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS TravelItems (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount TEXT)"; // команда для создания таблицы 
-                            m_sqlCmd.ExecuteNonQuery(); // выполнить команду
-                            dbStatusLabel.Text = "БД успешно создана и подключена.";
-                            savebuttonth.Text = "Сохранить и отключить";
-                            return;
-                        }
-                        catch (SQLiteException ex) { dbStatusLabel.Text = "Ошибка подключеня к БД!"; ShowErrorMessage("Ошибка подключения к БД: " + ex.Message); }
+                    catch (SQLiteException ex) { dbStatusLabel.Text = "Ошибка подключеня к БД!"; ShowErrorMessage("Ошибка подключения к БД: " + ex.Message); }
                 }
                 else { return; }
             }
@@ -388,17 +384,21 @@ namespace TravelPlanningAppSusloparov
                         saveFileDialog.DefaultExt = "sqlite";
                     }
                 }
-                try {   m_dbConn.Close(); // закрытие соединения и назначение статуса
-                        dbStatusLabel.Text = "БД успешно отключена и сохранена.";
-                        savebuttonth.Text = "Создать БД"; /* изменение текста на кнопке */ }
+                try
+                {
+                    m_dbConn.Close(); // закрытие соединения и назначение статуса
+                    dbStatusLabel.Text = "БД успешно отключена и сохранена.";
+                    savebuttonth.Text = "Создать БД"; /* изменение текста на кнопке */
+                }
                 catch (Exception ex) { ShowErrorMessage($"Ошибка при сохранении файла: {ex.Message}"); }
             }
         }
         private void Cleanallbutton_Click(object sender, EventArgs e)
         {
-            if (m_dbConn.State != ConnectionState.Open) /* Если БД не подключена */ { ShowErrorMessage("БД не подключена! Создайте или загрузите БД!"); return; } 
-                try {
-                if (neededdgv.Rows.Count == 0) /* если таблица пустая */ { ShowErrorMessage("В таблице нет вещей!"); return; } 
+            if (m_dbConn.State != ConnectionState.Open) /* Если БД не подключена */ { ShowErrorMessage("БД не подключена! Создайте или загрузите БД!"); return; }
+            try
+            {
+                if (neededdgv.Rows.Count == 0) /* если таблица пустая */ { ShowErrorMessage("В таблице нет вещей!"); return; }
                 else if (MessageBox.Show("Вы уверены, что хотите очистить список вещей?", "Подтвердите операцию", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     try
@@ -428,5 +428,5 @@ namespace TravelPlanningAppSusloparov
                 amountthtextBox.Text = Convert.ToString(row.Cells[2].Value).Trim(); // вставка в поле количества текста количества
             }
         }
-    }      
+    }
 }
