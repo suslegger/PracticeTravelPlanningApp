@@ -336,7 +336,7 @@ namespace TravelPlanningAppSusloparov
                     SaveFileDialog saveFileDialog = new SaveFileDialog();
                     { saveFileDialog.Title = "Выберите место для сохранения БД"; saveFileDialog.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*"; saveFileDialog.DefaultExt = "sqlite"; }  // диалог сохранения файла
                     saveFileDialog.ShowDialog();
-                    using (var destination = new SQLiteConnection($"Data Source={saveFileDialog.FileName}")) { destination.Open(); m_dbConn.BackupDatabase(destination, "main", "main", -1, null, 0); destination.Close(); } // сохранить бд
+                    using (var destination = new SQLiteConnection($"Data Source={saveFileDialog.FileName}" + ";Version=3;")) { destination.Open(); m_dbConn.BackupDatabase(destination, "main", "main", -1, null, 0); destination.Close(); } // сохранить бд
                 }
                 try
                 {
@@ -358,12 +358,7 @@ namespace TravelPlanningAppSusloparov
                 {
                     try
                     {
-                        using (var connection = new SQLiteConnection(m_dbConn)) // новое соединение SQLite
-                        {
-                            m_sqlCmd.Connection = m_dbConn; // обозначение соединения
-                            m_sqlCmd.CommandText = "DELETE FROM TravelItems"; // команда SQL для удаления всей таблицы
-                            m_sqlCmd.ExecuteNonQuery(); // выполнение командыы
-                        }
+                        using (var connection = new SQLiteConnection(m_dbConn)) { m_sqlCmd.Connection = m_dbConn; m_sqlCmd.CommandText = "DELETE FROM TravelItems"; m_sqlCmd.ExecuteNonQuery(); } // новое соединение SQLite: обозначение соединения, команда SQL для удаления всей таблицы и выполнение команды
                         neededdgv.Rows.Clear(); // очистка полей dgv
                         dbStatusLabel.Text = "База данных успешно очищена."; // статус
                     }
