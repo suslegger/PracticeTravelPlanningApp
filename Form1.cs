@@ -187,7 +187,7 @@ namespace TravelPlanningAppSusloparov
         private void Timecheckbox_CheckedChanged(object sender, EventArgs e)
         {
             // если поставлена галочка "рассчитать время" показать поле для ввода скорости, показать пометку для ввода скорости и изменить текст кнопки
-            if (timecheckbox.Checked == true) { speedtextBox.Visible = true; speedlabel.Visible = true; getrouteandtime.Text = "Рассчитать расстояние и время"; } 
+            if (timecheckbox.Checked == true) { speedtextBox.Visible = true; speedlabel.Visible = true; getrouteandtime.Text = "Рассчитать расстояние и время"; }
             else { speedtextBox.Visible = false; speedlabel.Visible = false; getrouteandtime.Text = "Рассчитать расстояние"; } // если убрана - вернуть все назад
         }
         private void Karta_MouseDown(object sender, MouseEventArgs e) // при нажатии кнопкой мыши на карту
@@ -200,7 +200,7 @@ namespace TravelPlanningAppSusloparov
         }
         private void Zoomplus_Click(object sender, EventArgs e) { karta.Zoom++; } // при нажатии на кнопку увлеич. масштаба - увеличить масштаб
 
-        private void Zoomminus_Click(object sender, EventArgs e) { karta.Zoom--; }// при нажатии на кнопку уменьш. масшаба - уменьшить масштаб
+        private void Zoomminus_Click(object sender, EventArgs e) { karta.Zoom--; } // при нажатии на кнопку уменьш. масшаба - уменьшить масштаб
 
         private void Karta_OnMapZoomChanged() // при изменении масштаба
         {
@@ -234,22 +234,15 @@ namespace TravelPlanningAppSusloparov
             else try
                 {
                     DataTable dTable = new DataTable(); // создание таблицы данных
-                    string sqlQuery = @"INSERT INTO TravelItems (name, amount) VALUES (@name, @amount)"; // запрос SQL на добавление в базу строки
-                    using (var command = new SQLiteCommand(sqlQuery, m_dbConn)) // новая команда SQL (с запросом и параметрами подключения)
+                    using (var command = new SQLiteCommand("INSERT INTO TravelItems (name, amount) VALUES (@name, @amount)", m_dbConn)) // новая команда SQL (с запросом и параметрами подключения)
                     {
                         command.Parameters.AddWithValue("@name", namethtextBox.Text); // параметр в запросе @name = поле nametxhtextbox.text
                         command.Parameters.AddWithValue("@amount", amountthtextBox.Text); // @amount = amountthtextbox.text
                         command.ExecuteNonQuery(); // выполнить команды
                     }
-                    sqlQuery = "SELECT * FROM TravelItems"; // запрос на выборку данных
-                    SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn); // новый адаптер данных
+                    SQLiteDataAdapter adapter = new SQLiteDataAdapter("SELECT * FROM TravelItems", m_dbConn); // новый адаптер данных
                     adapter.Fill(dTable); // заполнить адаптер данными с таблицы
-                    if (dTable.Rows.Count > 0) // если в таблице есть данные
-                    {
-                        neededdgv.Rows.Clear(); // очистить dgv
-                        for (int i = 0; i < dTable.Rows.Count; i++) // заполнение в цикле данными из таблицы
-                            neededdgv.Rows.Add(dTable.Rows[i].ItemArray);
-                    }
+                    if (dTable.Rows.Count > 0) { neededdgv.Rows.Clear(); for (int i = 0; i < dTable.Rows.Count; i++) neededdgv.Rows.Add(dTable.Rows[i].ItemArray); } // если в таблице есть данные - очистить dgv и заполннить в цикле данными из таблицы    
                     namethtextBox.Text = ""; // сделать поля названия и количества пустыми
                     amountthtextBox.Text = "";
                     dbStatusLabel.Text = "Вещь добавлена в базу данных."; // изменить статус
@@ -266,8 +259,7 @@ namespace TravelPlanningAppSusloparov
                 else if ((MessageBox.Show("Вы уверены, что хотите удалить выбранную вещь?", "Подтвердите операцию", MessageBoxButtons.YesNo, MessageBoxIcon.Question)) == DialogResult.Yes)
                 {
                     DataGridViewRow selectedRow = neededdgv.SelectedRows[0]; // обозначение выбранного поля
-                    string sqlQuery = "DELETE FROM TravelItems WHERE id = @id"; // запрос SQL на удаление
-                    using (var command = new SQLiteCommand(sqlQuery, m_dbConn)) // команда SQL
+                    using (var command = new SQLiteCommand("DELETE FROM TravelItems WHERE id = @id", m_dbConn)) // команда SQL
                     {
                         command.Parameters.AddWithValue("@id", dgvid); // добавить параметр id в запрос
                         command.ExecuteNonQuery(); // выполнить (удалить из БД)
@@ -304,8 +296,7 @@ namespace TravelPlanningAppSusloparov
                     try
                     {
                         DataTable dTable = new DataTable(); // инициализация таблицы данных
-                        string sqlQuery = "SELECT * FROM TravelItems"; // запрос SQL на выборку данных
-                        SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, m_dbConn); // инициализация адаптера sqlite
+                        SQLiteDataAdapter adapter = new SQLiteDataAdapter("SELECT * FROM TravelItems", m_dbConn); // инициализация адаптера sqlite
                         adapter.Fill(dTable); // заполнение адаптера данными
                         if (dTable.Rows.Count > 0) /* если таблица не пустая */ { neededdgv.Rows.Clear(); /* очистить dgv */ for (int i = 0; i < dTable.Rows.Count; i++) neededdgv.Rows.Add(dTable.Rows[i].ItemArray); /* цикл заполнения dgv данными из dtable */  }
                     }
@@ -355,6 +346,7 @@ namespace TravelPlanningAppSusloparov
                     m_dbConn.Close(); // закрытие соединения и назначение статуса
                     dbStatusLabel.Text = "БД успешно отключена и сохранена.";
                     savebuttonth.Text = "Создать БД"; /* изменение текста на кнопке */
+                    neededdgv.Rows.Clear(); // очистка полей dgv
                 }
                 catch (Exception ex) { ShowErrorMessage($"Ошибка при сохранении файла: {ex.Message}"); }
             }
@@ -393,6 +385,35 @@ namespace TravelPlanningAppSusloparov
                 namethtextBox.Text = Convert.ToString(row.Cells[1].Value).Trim(); // вставка в поле названия текста названия
                 amountthtextBox.Text = Convert.ToString(row.Cells[2].Value).Trim(); // вставка в поле количества текста количества
             }
+        }
+        private void Editbutton_Click(object sender, EventArgs e)
+        {
+            if (m_dbConn.State != ConnectionState.Open) /* если соединение закрыто (нет подключение к БД) */ { ShowErrorMessage("БД не подключена! Создайте или загрузите БД!"); return; }
+            else if (namethtextBox.Text == String.Empty || amountthtextBox.Text == String.Empty) /* если поля пустые */ { ShowErrorMessage("Не было указано название вещи и/или количество!"); return; }
+            else if (neededdgv.SelectedRows.Count == 0) /* если строка не выбрана */ { ShowErrorMessage("Строка для изменения не выбрана!"); return; }
+            else try
+                {
+                    if (MessageBox.Show("Вы уверены, что хотите изменить данную запись?", "Подтвердите операцию", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        DataTable dTable = new DataTable(); // создание таблицы данных
+                        using (var command = new SQLiteCommand("UPDATE TravelItems SET name = @name, amount = @amount WHERE id = @id", m_dbConn)) // новая команда SQL (с запросом и параметрами подключения)
+                        {
+                            command.Parameters.AddWithValue("@name", namethtextBox.Text); // параметр в запросе @name = поле nametxhtextbox.text
+                            command.Parameters.AddWithValue("@amount", amountthtextBox.Text); // @amount = amountthtextbox.text
+                            command.Parameters.AddWithValue("@id", dgvid);
+                            command.ExecuteNonQuery(); // выполнить команды
+                        }
+                        SQLiteDataAdapter adapter = new SQLiteDataAdapter("SELECT * FROM TravelItems", m_dbConn); // новый адаптер данных
+                        adapter.Fill(dTable); // заполнить адаптер данными с таблицы
+                        if (dTable.Rows.Count > 0) { neededdgv.Rows.Clear(); for (int i = 0; i < dTable.Rows.Count; i++) neededdgv.Rows.Add(dTable.Rows[i].ItemArray); } // если в таблице есть данные - очистить dgv и заполннить в цикле данными из таблицы    
+                        dbStatusLabel.Text = "Строка была успешно изменена";
+                        neededdgv.ClearSelection(); // убрать выбор строки
+                        namethtextBox.Text = ""; // сделать поля названия и количества пустыми
+                        amountthtextBox.Text = "";
+                    }
+                    else return;
+                }
+                catch (SQLiteException ex) { dbStatusLabel.Text = "Ошибка изменения строки!"; ShowErrorMessage("Ошибка: " + ex.Message); }
         }
     }
 }

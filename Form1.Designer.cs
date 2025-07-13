@@ -50,6 +50,7 @@
             this.howto = new System.Windows.Forms.Label();
             this.helplabel1 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.editbutton = new System.Windows.Forms.Button();
             this.dbStatusLabel = new System.Windows.Forms.Label();
             this.cleanallbutton = new System.Windows.Forms.Button();
             this.loadbuttonth = new System.Windows.Forms.Button();
@@ -82,8 +83,7 @@
             // 
             // nametextbox
             // 
-            this.nametextbox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.nametextbox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.nametextbox.Location = new System.Drawing.Point(360, 43);
             this.nametextbox.Margin = new System.Windows.Forms.Padding(2);
             this.nametextbox.Name = "nametextbox";
@@ -303,7 +303,7 @@
             this.statuslabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.statuslabel.AutoSize = true;
-            this.statuslabel.Location = new System.Drawing.Point(514, 46);
+            this.statuslabel.Location = new System.Drawing.Point(539, 46);
             this.statuslabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.statuslabel.Name = "statuslabel";
             this.statuslabel.Size = new System.Drawing.Size(112, 13);
@@ -358,6 +358,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.editbutton);
             this.tabPage2.Controls.Add(this.dbStatusLabel);
             this.tabPage2.Controls.Add(this.cleanallbutton);
             this.tabPage2.Controls.Add(this.loadbuttonth);
@@ -378,6 +379,18 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Список необходимых вещей";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // editbutton
+            // 
+            this.editbutton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.editbutton.Location = new System.Drawing.Point(290, 349);
+            this.editbutton.Margin = new System.Windows.Forms.Padding(2);
+            this.editbutton.Name = "editbutton";
+            this.editbutton.Size = new System.Drawing.Size(82, 39);
+            this.editbutton.TabIndex = 31;
+            this.editbutton.Text = "Изменить";
+            this.editbutton.UseVisualStyleBackColor = true;
+            this.editbutton.Click += new System.EventHandler(this.Editbutton_Click);
             // 
             // dbStatusLabel
             // 
@@ -406,7 +419,7 @@
             // loadbuttonth
             // 
             this.loadbuttonth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.loadbuttonth.Location = new System.Drawing.Point(471, 381);
+            this.loadbuttonth.Location = new System.Drawing.Point(484, 381);
             this.loadbuttonth.Margin = new System.Windows.Forms.Padding(2);
             this.loadbuttonth.Name = "loadbuttonth";
             this.loadbuttonth.Size = new System.Drawing.Size(82, 39);
@@ -418,7 +431,7 @@
             // savebuttonth
             // 
             this.savebuttonth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.savebuttonth.Location = new System.Drawing.Point(471, 327);
+            this.savebuttonth.Location = new System.Drawing.Point(484, 327);
             this.savebuttonth.Margin = new System.Windows.Forms.Padding(2);
             this.savebuttonth.Name = "savebuttonth";
             this.savebuttonth.Size = new System.Drawing.Size(82, 39);
@@ -430,7 +443,7 @@
             // rembuttonth
             // 
             this.rembuttonth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.rembuttonth.Location = new System.Drawing.Point(363, 380);
+            this.rembuttonth.Location = new System.Drawing.Point(387, 380);
             this.rembuttonth.Margin = new System.Windows.Forms.Padding(2);
             this.rembuttonth.Name = "rembuttonth";
             this.rembuttonth.Size = new System.Drawing.Size(82, 39);
@@ -442,7 +455,7 @@
             // addbuttonth
             // 
             this.addbuttonth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addbuttonth.Location = new System.Drawing.Point(363, 327);
+            this.addbuttonth.Location = new System.Drawing.Point(387, 327);
             this.addbuttonth.Margin = new System.Windows.Forms.Padding(2);
             this.addbuttonth.Name = "addbuttonth";
             this.addbuttonth.Size = new System.Drawing.Size(82, 39);
@@ -457,8 +470,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.amountthtextBox.Location = new System.Drawing.Point(118, 384);
             this.amountthtextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.amountthtextBox.MinimumSize = new System.Drawing.Size(120, 20);
             this.amountthtextBox.Name = "amountthtextBox";
-            this.amountthtextBox.Size = new System.Drawing.Size(212, 20);
+            this.amountthtextBox.Size = new System.Drawing.Size(157, 20);
             this.amountthtextBox.TabIndex = 24;
             // 
             // namethtextBox
@@ -467,8 +481,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.namethtextBox.Location = new System.Drawing.Point(118, 337);
             this.namethtextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.namethtextBox.MinimumSize = new System.Drawing.Size(120, 20);
             this.namethtextBox.Name = "namethtextBox";
-            this.namethtextBox.Size = new System.Drawing.Size(212, 20);
+            this.namethtextBox.Size = new System.Drawing.Size(157, 20);
             this.namethtextBox.TabIndex = 23;
             // 
             // label2
@@ -538,7 +553,7 @@
             this.ClientSize = new System.Drawing.Size(714, 490);
             this.Controls.Add(this.tabControl1);
             this.Margin = new System.Windows.Forms.Padding(2);
-            this.MinimumSize = new System.Drawing.Size(603, 493);
+            this.MinimumSize = new System.Drawing.Size(690, 500);
             this.Name = "MainForm";
             this.Text = "Программа для планирования путешествий";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -588,6 +603,7 @@
         private System.Windows.Forms.Button cleanallbutton;
         private System.Windows.Forms.Label howto2;
         private System.Windows.Forms.Label dbStatusLabel;
+        private System.Windows.Forms.Button editbutton;
     }
 }
 
