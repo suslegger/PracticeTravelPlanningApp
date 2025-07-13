@@ -331,15 +331,12 @@ namespace TravelPlanningAppSusloparov
             }
             else // если БД подключена
             {
-                DialogResult result = MessageBox.Show("Хотите выбрать иное место сохранения базы данных? (Сохранить как)", "Вопрос", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (result == DialogResult.Yes) // если нажата кнопка "Да"
+                if (MessageBox.Show("Хотите выбрать иное место сохранения базы данных? (Сохранить как)", "Вопрос", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) // если нажата кнопка "Да"
                 {
-                    SaveFileDialog saveFileDialog = new SaveFileDialog(); // диалог сохранения файла
-                    {
-                        saveFileDialog.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*";
-                        saveFileDialog.Title = "Выберите место для сохранения БД";
-                        saveFileDialog.DefaultExt = "sqlite";
-                    }
+                    SaveFileDialog saveFileDialog = new SaveFileDialog();
+                    { saveFileDialog.Title = "Выберите место для сохранения БД"; saveFileDialog.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*"; saveFileDialog.DefaultExt = "sqlite"; }  // диалог сохранения файла
+                    saveFileDialog.ShowDialog();
+                    using (var destination = new SQLiteConnection($"Data Source={saveFileDialog.FileName}")) { destination.Open(); m_dbConn.BackupDatabase(destination, "main", "main", -1, null, 0); destination.Close(); } // сохранить бд
                 }
                 try
                 {
