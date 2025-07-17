@@ -14,19 +14,18 @@ namespace TravelPlanningAppSusloparov
 {
     public partial class MainForm : Form
     {
-        public List<PointLatLng> _points; // лист с маркерами
-        public List<String> _pointnames; // лист с названиями маркеров
-        public GMapOverlay _selmarkOverlay = new GMapOverlay("selmark"); // оверлей со стрелкой-маркером
-        public GMapOverlay _markerOverlay = new GMapOverlay("markers"); // оверлей с маркерами
-        public GMapOverlay _routesOverlay = new GMapOverlay("_routesOverlay"); // оверлей для маршрутов
+        public List<PointLatLng> _points; // лист с маркерами и названиями маркеров
+        public List<String> _pointnames;
+        public GMapOverlay _selmarkOverlay = new GMapOverlay("selmark"); // оверлей со стрелкой-маркером, с маркерами и для маршрутов
+        public GMapOverlay _markerOverlay = new GMapOverlay("markers");
+        public GMapOverlay _routesOverlay = new GMapOverlay("_routesOverlay");
         private int _countPoints = 0; // счетчик маркеров
         private GMapMarker _currentMarker; // маркер
         private const double DefaultLatitude = 55.742; // стандартная широта
         private const double DefaultLongitude = 37.613; // стандартная долгота
-        private const int DefaultZoom = 10; // стандартное увеличение
-        private const int MinZoom = 3; // минимальное увеличение
-        private const int MaxZoom = 18; // максимальное увеличение
-        private const double PedestrianSpeed = 5.5; // средняя скорость пешехода
+        private const int DefaultZoom = 10; // стандартное, минимальное и максимальное увеличение
+        private const int MinZoom = 3;
+        private const int MaxZoom = 18;
         private const double DefaultVehicleSpeed = 30; // средняя скорость автомобиля
         private string dbFileName;
         private SQLiteConnection m_dbConn;
@@ -44,21 +43,21 @@ namespace TravelPlanningAppSusloparov
         {
             try
             {
-                GMaps.Instance.Mode = AccessMode.ServerAndCache;  // режим кеширования карты
-                string CacheDirectory = Path.Combine(Directory.GetCurrentDirectory(), "cache"); // папка кеширования карты
+                GMaps.Instance.Mode = AccessMode.ServerAndCache;  // режим и папка кеширования карты
+                string CacheDirectory = Path.Combine(Directory.GetCurrentDirectory(), "cache");
                 if (!Directory.Exists(CacheDirectory)) Directory.CreateDirectory(CacheDirectory); // если нет папки - создать
-                karta.CacheLocation = CacheDirectory; // назначение папки кеша
+                karta.CacheLocation = CacheDirectory;
             }
-            catch (System.IO.FileNotFoundException) { GMaps.Instance.Mode = AccessMode.ServerOnly; ShowErrorMessage("Невозможно создать/использовать папку кеша карты! Для загрузки карты будет использоваться только доступ в Интернет"); } // использовать только сервер
+            catch (System.IO.FileNotFoundException) { GMaps.Instance.Mode = AccessMode.ServerOnly; ShowErrorMessage("Невозможно создать/использовать папку кеша карты! Для загрузки карты будет использоваться только доступ в Интернет"); }
             karta.DragButton = MouseButtons.Left; // лкм для перемещения карты
             karta.MapProvider = GMapProviders.OpenStreetMap; // провайдер карты
             karta.Position = new PointLatLng(DefaultLatitude, DefaultLongitude); // установка позиции карты
-            karta.MinZoom = MinZoom; // минимальное увеличение
-            karta.MaxZoom = MaxZoom; // максимальное увеличение
-            karta.Zoom = DefaultZoom; // увеличение по умолчанию
-            karta.Overlays.Add(_selmarkOverlay); // наложение маркера выбора
-            karta.Overlays.Add(_markerOverlay); // наложение маркеров местоположения
-            karta.Overlays.Add(_routesOverlay); // наложение маршрута
+            karta.MinZoom = MinZoom; // минимальное, максимальное и стандартное увеличение
+            karta.MaxZoom = MaxZoom;
+            karta.Zoom = DefaultZoom;
+            karta.Overlays.Add(_selmarkOverlay); // наложение маркера выбора, местоположения и маршурта
+            karta.Overlays.Add(_markerOverlay);
+            karta.Overlays.Add(_routesOverlay);
             _currentMarker = new GMarkerGoogle(karta.Position, GMarkerGoogleType.arrow);
             { _currentMarker.IsVisible = false; } // отключить видимость по умолчанию
             _selmarkOverlay.Markers.Add(_currentMarker); // добавление маркера
@@ -68,12 +67,12 @@ namespace TravelPlanningAppSusloparov
 
         private void Addpointbutton_Click(object sender, EventArgs e)
         {
-            if (_countPoints >= 2) { ShowErrorMessage("Невозможно добавить более чем 2 точки!"); return; } // если точек 2 или более - не давать создать ещё точки
-            if (_currentMarker.IsVisible == false && usesearchcb.Checked == false) { ShowErrorMessage("Не выбрана точка!"); return; } // если точка не выбрана в режиме точек
+            if (_countPoints >= 2) { ShowErrorMessage("Невозможно добавить более чем 2 точки!"); return; }
+            if (_currentMarker.IsVisible == false && usesearchcb.Checked == false) { ShowErrorMessage("Не выбрана точка!"); return; }
             bool isfailed = false; // счетчик ошибки для поиска
-            GMapMarker m1 = null, m2 = null; // инициализация точек
-            PointLatLng markerpos; // инициализация местоположения маркера
-            if (_countPoints == 0) // если нет точек
+            GMapMarker m1 = null, m2 = null; // инициализация точек и местоположения маркера
+            PointLatLng markerpos;
+            if (_countPoints == 0)
             {
                 if (usesearchcb.Checked == true) /* если используется поиск (установлена галочка) */
                 {
@@ -89,9 +88,9 @@ namespace TravelPlanningAppSusloparov
                     if (karta.Zoom < 12) karta.Zoom = 12; // увеличить карту на этой точке
                 }
             }
-            else // если есть одна точка
+            else // если есть одна точка – использовать такой же алгоритм, но для второй точки
             {
-                if (usesearchcb.Checked == true) // если используется поиск (установлена галочка)
+                if (usesearchcb.Checked == true)
                 {
                     karta.GetPositionByKeywords(nametextbox.Text, out markerpos); // поиск местоположения по словам
                     if (markerpos.ToString() == "{Lat=0, Lng=0}") { ShowErrorMessage("Не удалось найти данное место"); isfailed = true; } // если не удалось найти - показать окно ошибки и изменить счётчик ошибок
@@ -108,7 +107,7 @@ namespace TravelPlanningAppSusloparov
             {
                 _countPoints++;
                 _points.Add(markerpos);
-                if (nametextbox.Text != String.Empty) _pointnames.Add(nametextbox.Text); // добавление название макера
+                if (nametextbox.Text != String.Empty) _pointnames.Add(nametextbox.Text); // добавление название маркера
                 else if (_countPoints == 1) _pointnames.Add("пункт А");
                 else _pointnames.Add("пункт B");
                 if (_countPoints == 1)
@@ -133,15 +132,15 @@ namespace TravelPlanningAppSusloparov
         {
             if (_countPoints != 0)
             {
-                _points.Clear(); // очистить список точек
-                _pointnames.Clear(); // очистить список названий точек
+                _points.Clear(); // очистить список точек, их названий
+                _pointnames.Clear();
                 _currentMarker.IsVisible = false; // убрать видимость маркера выбора
                 statuslabel.Text = "Пункты не выбраны!"; // изменить статус
                 _markerOverlay.Clear(); // очистить наложение маркеров
                 karta.Refresh(); // обновить карту
                 _countPoints = 0; // сбросить счётчик точек и сообщения
-                distancelabel.Text = "Расстояние: не рассчитано"; // текст расстояния
-                etalabel.Text = "Время в пути: не рассчитано"; // текст времени в пути
+                distancelabel.Text = "Расстояние: не рассчитано"; // текст расстояния и времени в пути
+                etalabel.Text = "Время в пути: не рассчитано";
                 _routesOverlay.Clear(); // очистить наложение маршрутов
                 howto2.Visible = true; // показать подсказку, как выбрать пункт
             }
@@ -149,15 +148,15 @@ namespace TravelPlanningAppSusloparov
         }
         public static TimeSpan CalculateTravelTime(double distance, double speed)
         {
-            if (speed <= 0) throw new ArgumentException("Скорость должна быть больше нуля!"); // если скорость <=0 - вывести ошибку
+            if (speed <= 0) throw new ArgumentException("Скорость должна быть больше нуля!");
             double hours = distance / speed; // время = расстояние / скорость
             return TimeSpan.FromHours(hours); // возвращать по умолчанию часы
         }
         private void Getrouteandtime_Click(object sender, EventArgs e)
         {
-            if (_countPoints != 2) { ShowErrorMessage("Не добавлены все точки!"); return; } // если точек меньше 2 - вывести ошибку
+            if (_countPoints != 2) { ShowErrorMessage("Не добавлены все точки!"); return; }
             statuslabel.Text = "Расчет маршрута..."; // изменение статуса
-            var route = OpenStreetMapProvider.Instance.GetRoute(_points[0], _points[1], false, false, (int)karta.Zoom); // поиск маршрута: 2 точки, преподчитать ли трассы, пешеходные маршруты, какое увеличение использовать
+            var route = OpenStreetMapProvider.Instance.GetRoute(_points[0], _points[1], false, false, (int)karta.Zoom); // поиск маршрута: 2 точки, предпочитать ли трассы, пешеходные маршруты, какое увеличение использовать
             if (route == null) { ShowErrorMessage("Невозможно вычислить маршрут! Проверьте интернет-соединение"); return; } // если маршрут не найден - вывести ошибку
             var r = new GMapRoute(route.Points, "Marshrut") { Stroke = new Pen(Color.Red, 5) }; // создание маршрута и использование красного цвета для маршрута
             _routesOverlay.Routes.Add(r); // добавление маршрута на наложение
@@ -177,8 +176,8 @@ namespace TravelPlanningAppSusloparov
                 {
                     double speed = Convert.ToDouble(speedtextBox.Text); // берём скорость из поля
                     TimeSpan traveltime = CalculateTravelTime(distance, speed); // вызов функции расчёта времени
-                    if (traveltime.TotalHours < 1) etalabel.Text = $"Примерное время в пути равно: {traveltime.Minutes} мин {traveltime.Seconds} сек"; // если время меньше 1 часа - строка выглядит так
-                    else if (traveltime.TotalHours < 24) etalabel.Text = $"Примерное время в пути равно: {traveltime.Hours} ч {traveltime.Minutes} мин {traveltime.Seconds} сек"; // если время меньше 24 часов
+                    if (traveltime.TotalHours < 1) etalabel.Text = $"Примерное время в пути равно: {traveltime.Minutes} мин {traveltime.Seconds} сек";
+                    else if (traveltime.TotalHours < 24) etalabel.Text = $"Примерное время в пути равно: {traveltime.Hours} ч {traveltime.Minutes} мин {traveltime.Seconds} сек";
                     else etalabel.Text = $"Примерное время в пути равно: {traveltime.Days} дн {traveltime.Hours} ч {traveltime.Minutes} мин"; // если больше 24 часов
                 }
                 catch (Exception ex) { ShowErrorMessage(ex.Message); } // если ошибка в функции - вывести сообщение при ошибке
@@ -201,7 +200,7 @@ namespace TravelPlanningAppSusloparov
         private void Zoomplus_Click(object sender, EventArgs e) { karta.Zoom++; } // при нажатии на кнопку увлеич. масштаба - увеличить масштаб
 
         private void Zoomminus_Click(object sender, EventArgs e) { karta.Zoom--; } // при нажатии на кнопку уменьш. масшаба - уменьшить масштаб
-
+        
         private void Karta_OnMapZoomChanged() // при изменении масштаба
         {
             if (karta.Zoom != MinZoom && karta.Zoom != MaxZoom) { if (zoomplus.Enabled == false) zoomplus.Enabled = true; if (zoomminus.Enabled == false) zoomminus.Enabled = true; } // если не максимальный и не мин. масшаб - если кнопки выключены - включить
@@ -242,7 +241,7 @@ namespace TravelPlanningAppSusloparov
                     }
                     SQLiteDataAdapter adapter = new SQLiteDataAdapter("SELECT * FROM TravelItems", m_dbConn); // новый адаптер данных
                     adapter.Fill(dTable); // заполнить адаптер данными с таблицы
-                    if (dTable.Rows.Count > 0) { neededdgv.Rows.Clear(); for (int i = 0; i < dTable.Rows.Count; i++) neededdgv.Rows.Add(dTable.Rows[i].ItemArray); } // если в таблице есть данные - очистить dgv и заполннить в цикле данными из таблицы    
+                    if (dTable.Rows.Count > 0) { neededdgv.Rows.Clear(); for (int i = 0; i < dTable.Rows.Count; i++) neededdgv.Rows.Add(dTable.Rows[i].ItemArray); } // если в таблице есть данные - очистить dgv и заполнить в цикле данными из таблицы    
                     namethtextBox.Text = ""; // сделать поля названия и количества пустыми
                     amountthtextBox.Text = "";
                     dbStatusLabel.Text = "Вещь добавлена в базу данных."; // изменить статус
@@ -272,7 +271,7 @@ namespace TravelPlanningAppSusloparov
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            neededdgv.Columns.Add("id", "Номер п/п"); // добаить колонки в 
+            neededdgv.Columns.Add("id", "Номер п/п"); // добавить колонки в dgv
             neededdgv.Columns.Add("namec", "Название вещи");
             neededdgv.Columns.Add("amountc", "Количество");
             neededdgv.Columns["id"].Visible = false; // убрать видимость строки с ИД
@@ -282,7 +281,7 @@ namespace TravelPlanningAppSusloparov
         private void Loadbuttonth_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            { openFileDialog.Title = "Загрузить базу данных"; openFileDialog.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*"; } // диалог откытия файла с заголовком и фильтром
+            { openFileDialog.Title = "Загрузить базу данных"; openFileDialog.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*"; } // диалог открытия файла с заголовком и фильтром
             if (openFileDialog.ShowDialog() == DialogResult.OK) // если нажата клавиша ОК
             {
                 try
@@ -290,7 +289,7 @@ namespace TravelPlanningAppSusloparov
                     dbFileName = openFileDialog.FileName; // имя файла
                     if (m_dbConn.State != ConnectionState.Open) m_dbConn.Close(); // если есть подключение - отключиться
                     m_dbConn = new SQLiteConnection("Data Source=" + dbFileName + ";Version=3;"); // создание соединения
-                    m_dbConn.Open(); // открыте соединения
+                    m_dbConn.Open(); // открытие соединения
                     savebuttonth.Text = "Сохранить и отключить"; // изменение текста кнопки сохранения
                     dbStatusLabel.Text = "БД успешно подключена.";
                     try
@@ -310,14 +309,14 @@ namespace TravelPlanningAppSusloparov
             if (m_dbConn.State != ConnectionState.Open) // если нет соединения - кнопка работает как "создать"
             {
                 SaveFileDialog sfd = new SaveFileDialog();
-                { sfd.Title = "Выберите место для сохранения БД"; sfd.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*"; sfd.DefaultExt = "sqlite"; } // диалог сохранения с заголовком, фильром и расширением
+                { sfd.Title = "Выберите место для сохранения БД"; sfd.Filter = "SQLite database (*.sqlite)|*.sqlite|All files (*.*)|*.*"; sfd.DefaultExt = "sqlite"; } // диалог сохранения с заголовком, фильтром и расширением
                 if (sfd.ShowDialog() == DialogResult.OK) // если нажата кнопка ОК
                 {
                     dbFileName = sfd.FileName; // имя файла
                     try
                     {
                         m_dbConn = new SQLiteConnection("Data Source=" + dbFileName + ";Version=3;"); // новое соединение SQLite
-                        m_dbConn.Open(); // открыть соедниение
+                        m_dbConn.Open(); // открыть соединение
                         m_sqlCmd.Connection = m_dbConn; // объявление команды для соединения
                         m_sqlCmd.CommandText = "CREATE TABLE IF NOT EXISTS TravelItems (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount TEXT)"; // команда для создания таблицы 
                         m_sqlCmd.ExecuteNonQuery(); // выполнить команду
@@ -397,7 +396,7 @@ namespace TravelPlanningAppSusloparov
                         }
                         SQLiteDataAdapter adapter = new SQLiteDataAdapter("SELECT * FROM TravelItems", m_dbConn); // новый адаптер данных
                         adapter.Fill(dTable); // заполнить адаптер данными с таблицы
-                        if (dTable.Rows.Count > 0) { neededdgv.Rows.Clear(); for (int i = 0; i < dTable.Rows.Count; i++) neededdgv.Rows.Add(dTable.Rows[i].ItemArray); } // если в таблице есть данные - очистить dgv и заполннить в цикле данными из таблицы    
+                        if (dTable.Rows.Count > 0) { neededdgv.Rows.Clear(); for (int i = 0; i < dTable.Rows.Count; i++) neededdgv.Rows.Add(dTable.Rows[i].ItemArray); } // если в таблице есть данные - очистить dgv и заполнить в цикле данными из таблицы    
                         dbStatusLabel.Text = "Строка была успешно изменена";
                         neededdgv.ClearSelection(); // убрать выбор строки
                         namethtextBox.Text = ""; // сделать поля названия и количества пустыми
