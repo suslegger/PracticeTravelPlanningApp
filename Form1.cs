@@ -198,8 +198,8 @@ namespace TravelPlanningAppSusloparov
         }
         private void Zoomplus_Click(object sender, EventArgs e) { karta.Zoom++; } // при нажатии на кнопку увлеич. масштаба - увеличить масштаб
 
-        private void Zoomminus_Click(object sender, EventArgs e) { karta.Zoom--; } // при нажатии на кнопку уменьш. масшаба - уменьшить масштаб
-        
+        private void Zoomminus_Click(object sender, EventArgs e) { karta.Zoom--; } // при нажатии на кнопку уменьш. масштаба - уменьшить масштаб
+
         private void Karta_OnMapZoomChanged() // при изменении масштаба
         {
             if (karta.Zoom != MinZoom && karta.Zoom != MaxZoom) { if (zoomplus.Enabled == false) zoomplus.Enabled = true; if (zoomminus.Enabled == false) zoomminus.Enabled = true; } // если не максимальный и не мин. масшаб - если кнопки выключены - включить
