@@ -26,7 +26,6 @@ namespace TravelPlanningAppSusloparov
         private const int DefaultZoom = 10; // стандартное, минимальное и максимальное увеличение
         private const int MinZoom = 3;
         private const int MaxZoom = 18;
-        private const double DefaultVehicleSpeed = 30; // средняя скорость автомобиля
         private string dbFileName;
         private SQLiteConnection m_dbConn;
         private SQLiteCommand m_sqlCmd;
