@@ -1,4 +1,4 @@
-﻿namespace TravelPlanningAppSusloparov
+﻿namespace PracticeTravelPlanningApp
 {
     partial class MainForm
     {

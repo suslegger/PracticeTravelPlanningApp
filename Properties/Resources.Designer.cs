@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TravelPlanningAppSusloparov.Properties
+namespace PracticeTravelPlanningApp.Properties
 {
 
 
@@ -44,7 +44,7 @@ namespace TravelPlanningAppSusloparov.Properties
             {
                 if ((resourceMan == null))
                 {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TravelPlanningAppSusloparov.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("PracticeTravelPlanningApp.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

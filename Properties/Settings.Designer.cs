@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TravelPlanningAppSusloparov.Properties
+namespace PracticeTravelPlanningApp.Properties
 {
 
 
